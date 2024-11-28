@@ -1,0 +1,21 @@
+<div id="sidebar">
+    <!--    sidebar trên thiết bị lớn -->
+    <div class="d-none d-md-block">
+        {% block sidebar_device_big %}
+        {% include 'layout/sidebar.html' %}
+        {% endblock %}
+    </div>
+    <!--  sidebar trên thiết bị nhỏ-->
+    <div class="offcanvas offcanvas-end text-bg-dark d-block d-md-none" id="responsive-sidebar">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="offcanvasDarkNavbarLabel">Tiện ích</h5>
+            <button type="button" class="btn-close btn-close-dark" data-bs-dismiss="offcanvas"
+                    aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            {% block sidebar_content_device_small %}
+            {% include 'layout/sidebar.html' %}
+            {% endblock %}
+        </div>
+    </div>
+</div>

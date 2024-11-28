@@ -1,0 +1,27 @@
+/*HOVER SIDEBAR ITEM*/
+/* HOVER SIDEBAR ITEM */
+#wp-content #sidebar .nav-item {
+    transition: background 0.3s ease, transform 0.3s ease;
+}
+
+#wp-content #sidebar .nav-item:hover {
+    background: #9c9c9c;
+    transform: translate3d(0, -0.125rem, 0);
+    border-radius : 10px;
+}
+
+#navbar-main #search-main .btn-search{
+width:100px;
+}
+
+@media (min-width: 768px) {
+    #navbar-main #search-main {
+        width:600px; !important;
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+}
+#header .navbar-toggler{
+    color: #f8f9fa !important;
+    border-color: #f8f9fa !important;
+}
