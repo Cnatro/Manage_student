@@ -5,6 +5,7 @@ from App import app,db
 from sqlalchemy import Integer, Column, String, ForeignKey, Float, DateTime, Boolean, Text, Enum, CheckConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy import func
+from flask_login import UserMixin
 
 
 class UserRole(enum.Enum):
@@ -34,7 +35,7 @@ class Profile(db.Model):
     number_phone = Column(String(10),unique=True)
 
 
-class User(db.Model):
+class User(db.Model,UserMixin):
     id = Column(Integer,ForeignKey(Profile.id),primary_key=True)
     username = Column(String(50), unique=True)
     password = Column(String(50), nullable=False)

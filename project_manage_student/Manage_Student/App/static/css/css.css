@@ -25,3 +25,7 @@ width:100px;
     color: #f8f9fa !important;
     border-color: #f8f9fa !important;
 }
+#wrapper-form-login .icon-search{
+right: 10px;
+top: 44px;
+}
