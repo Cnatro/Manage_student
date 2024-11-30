@@ -166,9 +166,9 @@ if __name__ == '__main__':
         # db.session.commit()
 
         #create account
-        admin = User(id=profile_1.id,username="Cnatro",password=str(hashlib.md5('Admin123@'.encode('utf-8')).hexdigest()),user_role=UserRole.ADMIN)
+        admin = User(id=profile_1.id,username="Cnatro",password=str(hashlib.md5('Admin123@'.encode('utf-8')).hexdigest()),user_role=UserRole.STAFF)
         acc2 = User(id=profile_2.id,username="NhanTran",password=str(hashlib.md5('Nhan123@'.encode('utf-8')).hexdigest()), user_role=UserRole.TEACHER)
-        acc3 = User(id=profile_3.id,username="NgocThai",password=str(hashlib.md5('Thai123@'.encode('utf-8')).hexdigest()), user_role=UserRole.STAFF)
+        acc3 = User(id=profile_3.id,username="NgocThai",password=str(hashlib.md5('Thai123@'.encode('utf-8')).hexdigest()), user_role=UserRole.ADMIN)
 
         # db.session.add_all([acc1,acc2,acc3])
         # db.session.commit()

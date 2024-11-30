@@ -2,7 +2,8 @@
     <!--    sidebar trên thiết bị lớn -->
     <div class="d-none d-md-block">
         {% block sidebar_device_big %}
-        {% include 'layout/sidebar.html' %}
+        {% set sidebar_file = 'layout/sidebar-' + user_page + '.html' %}
+        {% include sidebar_file %}
         {% endblock %}
     </div>
     <!--  sidebar trên thiết bị nhỏ-->
@@ -14,7 +15,8 @@
         </div>
         <div class="offcanvas-body">
             {% block sidebar_content_device_small %}
-            {% include 'layout/sidebar.html' %}
+            {% set sidebar_file = 'layout/sidebar-' + user_page + '.html' %}
+            {% include sidebar_file %}
             {% endblock %}
         </div>
     </div>
