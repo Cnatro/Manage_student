@@ -103,5 +103,12 @@ def add_student():
         return redirect(url_for('manage_student'))
     return 'Thêm dữ liệu không thành công'
 
+
+@app.route('/teacher_score')
+@role_only([UserRole.TEACHER])
+def teacher_score():
+    return render_template('teacher_score.html')
+
+
 if __name__ == '__main__':
     app.run(debug=True)
