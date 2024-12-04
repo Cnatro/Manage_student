@@ -1,9 +1,11 @@
-from flask import render_template, url_for, request
+import pandas
+from flask import render_template, url_for, request, flash, jsonify
 from werkzeug.utils import redirect
 
-from App import app, login
+from App import app, login, ALLOW_EXTENSIONS
 from flask_login import login_user, logout_user, current_user,login_required
 from App.dao import auth
+from App.dao.student import*
 from App.model import UserRole
 from App.decorators import role_only
 from App.form import*
@@ -54,6 +56,54 @@ def home():
     user_page = request.args.get('user_page',default='staff').split('.')[-1] #lấy giá trị cuối cùng
     return render_template("index.html",user_page=str.lower(user_page))
 
+
+@app.route('/manage_student')
+@role_only([UserRole.STAFF])
+def manage_student():
+    students = load_students()
+    return render_template('manage_student.html',user_page='staff',students=students)
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOW_EXTENSIONS
+
+
+@app.route('/upload_by_excel', methods=['POST','GET'])
+@role_only([UserRole.STAFF])
+def upload_by_excel():
+    if 'upload_file' not in request.files:
+        return "Không tồn tại tệp tin",400
+    file = request.files['upload_file']
+
+    if file.filename == '':
+        return "File đang trống file dữ liệu"
+    if file and allowed_file(file.filename):
+        try:
+            datat_file = pandas.read_excel(file)
+            data = datat_file.to_dict(orient='records')
+            add_list_student(list_data=data,staff_id=current_user.id)
+        except Exception as e:
+            return jsonify({'error':str(e)}),500
+        return redirect(url_for('manage_student'))
+
+    return "Thêm dữ liệu không thành công"
+
+
+
+
+@app.route('/add_student',methods=['GET','POST'])
+@role_only([UserRole.STAFF])
+def add_student():
+    if request.method == "POST":
+        data = request.form.copy()
+        del data['btn_add_student']
+
+        data['staff_id'] = current_user.id
+        data['gender'] = int(data['gender'])
+        create_student(**data)
+        return redirect(url_for('manage_student'))
+    return 'Thêm dữ liệu không thành công'
 
 if __name__ == '__main__':
     app.run(debug=True)

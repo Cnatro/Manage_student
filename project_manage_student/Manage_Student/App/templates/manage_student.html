@@ -1,0 +1,186 @@
+{% extends 'layout/base.html' %}
+
+{% block title %}
+Trang quản lí học sinh
+{% endblock %}
+
+{% block content %}
+<div class="row pb-3 pt-3" id="nav-manage-student">
+    <div class="col-3">
+        <select class="form-select" aria-label="Default select example">
+            <option selected>Tất cả các lớp</option>
+            <option value="1">One</option>
+            <option value="2">Two</option>
+            <option value="3">Three</option>
+        </select>
+    </div>
+    <div class="col-3">
+        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#add_student">
+            <i class="fa-solid fa-user-plus"></i>
+            <span>Thêm học sinh</span>
+        </button>
+        <!-- Modal -->
+        <div class="modal fade" id="add_student" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header text-center">
+                        <h1 class="modal-title fs-3 ms-auto" id="ModalLabel">THÊM HỌC SINH</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="/add_student" method="POST">
+                            <div class="form-group mb-3 row">
+                                <div class="col-8">
+                                    <label for="name" class="form-label">Họ và tên</label>
+                                    <input type="text" class="form-control" id="name" name="name"
+                                           placeholder="Nhập họ và tên"/>
+                                </div>
+                                <div class="col-4">
+                                    <label for="gender" class="form-label">Giới tính</label>
+                                    <select class="form-select" id="gender" name="gender">
+                                        <option selected>Chọn</option>
+                                        <option value="0">Nam</option>
+                                        <option value="1">Nữ</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="birthday" class="form-label">Ngày sinh</label>
+                                <input type="date" name="birthday" id="birthday" class="form-control"/>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="number_phone" class="form-label">Số điện thoại</label>
+                                <input type="text" name="number_phone" id="number_phone" class="form-control"/>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" name="email" id="email" class="form-control"/>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="address" class="form-label">Địa chỉ</label>
+                                <textarea class="form-control" id="address" name="address" rows="3"></textarea>
+                            </div>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Quay lại</button>
+                            <button type="submit" class="btn btn-primary" name="btn_add_student">Ghi nhận</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-3">
+        <button class="btn btn-outline-primary" data-bs-toggle="modal"
+                data-bs-target="#modal_add_excel">
+            <i class="fa-solid fa-arrow-right-to-bracket"></i>
+            <span>Nhập liệu từ excel</span>
+        </button>
+        <div class="modal fade" id="modal_add_excel" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Nhập danh sách học sinh từ file excel</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="/upload_by_excel" method="POST" enctype="multipart/form-data">
+                            <div class="form-group pb-4">
+                                <label for="upload_file">Vui lòng chọn file .xlsx</label> <br>
+                                <input type="file" name="upload_file" id="upload_file"/>
+                            </div>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Quay lại</button>
+                            <button type="submit" class="btn btn-primary" name="btn_upload_file">Ghi nhận</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-3 ">
+        <button type="button" class="btn btn-outline-primary">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span>Xuất liệu file excel</span>
+        </button>
+    </div>
+</div>
+<table class="table text-center table-bordered border-primary" id="list-student">
+    <thead>
+    <tr>
+        <th scope="col" class="border-box">STT</th>
+        <th scope="col">
+            <span>Họ và tên</span>
+            <i class="fa-solid fa-chevron-down"></i>
+        </th>
+        <th scope="col">Giới tính</th>
+        <th scope="col">Ngày sinh</th>
+        <th scope="col">Điểm trung bình</th>
+        <th scope="col">Học phí</th>
+        <th scope="col">Đạt chuẩn lên lớp</th>
+        <th scope="col">action</th>
+    </tr>
+    <tr>
+        <th scope="col"></th>
+        <th scope="col">
+            <form class="d-flex" role="search">
+                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+            </form>
+        </th>
+        <th scope="col">
+            <select class="form-select" aria-label="Default select example">
+                <option selected>Chọn</option>
+                <option value="1">One</option>
+                <option value="2">Two</option>
+                <option value="3">Three</option>
+            </select>
+        </th>
+        <th scope="col"></th>
+        <th scope="col">
+            <select class="form-select" aria-label="Default select example">
+                <option selected>Chọn</option>
+                <option value="1">One</option>
+                <option value="2">Two</option>
+                <option value="3">Three</option>
+            </select>
+        </th>
+        <th scope="col">
+            <select class="form-select" aria-label="Default select example">
+                <option selected>Chọn</option>
+                <option value="1">One</option>
+                <option value="2">Two</option>
+                <option value="3">Three</option>
+            </select>
+        </th>
+        <th scope="col">
+            <select class="form-select" aria-label="Default select example">
+                <option selected>Chọn</option>
+                <option value="1">One</option>
+                <option value="2">Two</option>
+                <option value="3">Three</option>
+            </select>
+        </th>
+        <th scope="col"></th>
+    </tr>
+    </thead>
+    <tbody class="table-hover">
+    {% if students %}
+    {% for st in students %}
+    <tr>
+        <th scope="row">{{ loop.index }}</th>
+        <td>{{ st.profile.name }}</td>
+        <td>{{ st.profile.gender }}</td>
+        <td>{% if st.profile.birthday %}
+            {{ st.profile.birthday.strftime('%d-%m-%Y') }}
+            {% else %}
+            Chưa cập nhật
+            {% endif %}
+        </td>
+        <td>Điểm</td>
+        <td>{{ st.status_payment }}</td>
+        <td>Lên lớp or chưa</td>
+    </tr>
+    {% endfor %}
+    {% else %}
+    <span class="alert alert-danger">Không có dữ liệu</span>
+    {% endif %}
+    </tbody>
+</table>
+{% endblock %}

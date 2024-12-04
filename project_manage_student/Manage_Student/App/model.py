@@ -43,15 +43,11 @@ class User(db.Model,UserMixin):
     create_day = Column(DateTime,default=func.now())
     last_login = Column(DateTime)
 
-    profile = relationship('Profile',backref='User',lazy=True,uselist=False)
+    profile = relationship('Profile',backref='User',lazy=True)
     # staff
-    students = relationship('Student',backref='User',lazy=True)
-    staff_classes = relationship('StaffClass',backref='User',lazy=True)
+    staff_students = relationship('Student',backref='User',lazy=True)
     # teacher
-    classes = relationship('Class',backref='User',lazy=True)
-    # admin
-    regulations = relationship('Regulation',backref='User',lazy=True)
-
+    teach_classes = relationship('Class',backref='User',lazy=True)
 
 
 class Student(db.Model):
@@ -60,9 +56,7 @@ class Student(db.Model):
 
     staff_id = Column(Integer, ForeignKey(User.id),nullable=False)
 
-    profile = relationship('Profile',backref='Student',lazy=True, uselist=False)
-    classes = relationship('StudentClass',backref='Student',lazy=True)
-    scores = relationship('Score',backref='Student',lazy=True)
+    profile = relationship('Profile',backref='Student',lazy=True)
 
 
 class Class(db.Model):
@@ -73,10 +67,6 @@ class Class(db.Model):
 
     teacher_id = Column(Integer,ForeignKey(User.id),nullable=False)
 
-    students = relationship('StudentClass',backref='Class',lazy=True)
-    staffs = relationship('StaffClass', backref='Class', lazy=True)
-    teacher_plans = relationship('TeacherPlan',backref='Class', lazy=True)
-
 
 class Subject(db.Model):
     id = Column(Integer, autoincrement=True, primary_key= True)
@@ -85,15 +75,11 @@ class Subject(db.Model):
     number_of_15p = Column(Integer,default=1)
     number_of_45p = Column(Integer,default=1)
 
-    teachers = relationship('TeacherSubject', backref='Subject', lazy=True)
-
 
 class Semester(db.Model):
     id = Column(Integer, autoincrement=True, primary_key=True)
     name = Column(Enum(SemesterName))
     year = Column(DateTime)
-
-    teacher_plans = relationship('TeacherPlan',backref='Semester', lazy=True)
 
 
 class StudentClass(db.Model):
@@ -102,12 +88,18 @@ class StudentClass(db.Model):
     student_id = Column(Integer,ForeignKey(Student.id), nullable=False)
     class_id = Column(Integer,ForeignKey(Class.id),nullable=False)
 
+    students = relationship('Student',backref='StudentClass',lazy=True)
+    class_ = relationship('Class',backref='StudentClass',lazy=True)
+
 
 class StaffClass(db.Model):
     id = Column(Integer,autoincrement=True,primary_key=True)
 
     staff_id = Column(Integer,ForeignKey(User.id), nullable=False)
     class_id = Column(Integer,ForeignKey(Class.id), nullable = False)
+
+    staff = relationship('User',backref='StaffClass',lazy=True)
+    class_ = relationship('Class',backref='StaffClass',lazy=True)
 
 
 class TeacherSubject(db.Model):
@@ -116,8 +108,8 @@ class TeacherSubject(db.Model):
     teacher_id = Column(Integer, ForeignKey(User.id), nullable= False)
     subject_id  = Column(Integer, ForeignKey(Subject.id), nullable= False)
 
-    teacher_plans = relationship('TeacherPlan', backref='TeacherSubject', lazy=True)
-
+    teacher = relationship('User',backref='TeacherSubject',lazy=True)
+    subjects = relationship('Subject',backref='TeacherSubject',lazy=True)
 
 class TeacherPlan(db.Model):
     id = Column(Integer, autoincrement= True, primary_key=True)
@@ -126,7 +118,19 @@ class TeacherPlan(db.Model):
     class_id = Column(Integer, ForeignKey(Class.id), nullable= False)
     semester_id = Column(Integer, ForeignKey(Semester.id ), nullable= False)
 
-    scores = relationship('Score',backref='TeacherPlan',lazy=True)
+    teacher_subjects = relationship('TeacherSubject',backref='TeacherPlan',lazy=True)
+    semester = relationship('Semester',backref='TeacherPlan',lazy=True)
+    classes = relationship('Class',backref='TeacherPlan',lazy=True)
+
+
+class Exam(db.Model):
+    id = Column(Integer,primary_key=True,autoincrement=True)
+
+    teacher_plan_id = Column(Integer,ForeignKey(TeacherPlan.id),nullable=False)
+    student_id = Column(Integer,ForeignKey(Student.id),nullable=False)
+
+    teacher_plans = relationship('TeacherPlan',backref='Exam',lazy=True)
+    scores = relationship('Score',backref='Exam',lazy=True)
 
 
 class Score(db.Model):
@@ -135,8 +139,7 @@ class Score(db.Model):
     value = Column(Float,nullable=False)
     count_exam = Column(Integer)
 
-    student_id = Column(Integer, ForeignKey(Student.id), nullable=False)
-    teacher_plan_id = Column(Integer, ForeignKey(TeacherPlan.id), nullable=False)
+    exam_id = Column(Integer,ForeignKey(Exam.id),nullable=False)
 
     __table_args__ = (
         CheckConstraint('value >= 0', name='check_value_min'),
@@ -158,7 +161,7 @@ if __name__ == '__main__':
     with app.app_context():
         # db.create_all()
 
-        # create user
+        #create user
         profile_1 = Profile(name='Nguyễn Hoàng Long Nhật',email='cnatro23@gmail.com')
         profile_2 = Profile(name='Trần Lê Nhân', email='nhantran.011004@gmail.com')
         profile_3 = Profile(name='Hồ Ngọc Thái', email='ngocthai@gmail.com')
@@ -170,7 +173,7 @@ if __name__ == '__main__':
         acc2 = User(id=profile_2.id,username="NhanTran",password=str(hashlib.md5('Nhan123@'.encode('utf-8')).hexdigest()), user_role=UserRole.TEACHER)
         acc3 = User(id=profile_3.id,username="NgocThai",password=str(hashlib.md5('Thai123@'.encode('utf-8')).hexdigest()), user_role=UserRole.ADMIN)
 
-        # db.session.add_all([acc1,acc2,acc3])
+        # db.session.add_all([admin,acc2,acc3])
         # db.session.commit()
 
         # create teacher

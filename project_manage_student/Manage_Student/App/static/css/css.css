@@ -3,7 +3,7 @@
 #wp-content #sidebar .nav-item {
     transition: background 0.3s ease, transform 0.3s ease;
 }
-
+/* sidebar*/
 #wp-content #sidebar .nav-item:hover {
     background: #9c9c9c;
     transform: translate3d(0, -0.125rem, 0);
@@ -13,7 +13,6 @@
 #navbar-main #search-main .btn-search{
 width:100px;
 }
-
 @media (min-width: 768px) {
     #navbar-main #search-main {
         width:600px; !important;
@@ -25,7 +24,16 @@ width:100px;
     color: #f8f9fa !important;
     border-color: #f8f9fa !important;
 }
+
+/* login */
 #wrapper-form-login .icon-search{
 right: 10px;
 top: 44px;
+}
+/* table in manage-student-content */
+.table>:not(caption)>*>* {
+padding: 0.5rem 3px !important;
+}
+#list-student{
+    font-size : 14px !important;
 }
