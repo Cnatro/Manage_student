@@ -1,10 +1,210 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'layout/base.html' %}
+<!--title-->
+{% block title %}
+Trang chủ
+{% endblock %}
+<!--content-->
+{% block content %}
+<div class="p-3 border border-info rounded-customer mt-3">
+    <div class="col-12 row">
+        <!-- Button trigger modal -->
+<!--        <i class="fa-regular fa-pen-to-square"></i>-->
+        <button type="button" class="ms-5 btn btn-primary col-3 input-point" data-bs-toggle="modal" data-bs-target="#inputModal">
+            <span><i class="fa-solid fa-file-pen"></i></span>
+            <span>Nhập điểm</span>
+        </button>
+        <div class="col-1">
 
-</body>
-</html>
+        </div>
+        <!--        cập nhật-->
+        <button type="button" class="btn btn-primary col-3" data-bs-toggle="modal" data-bs-target="#updateModal">
+            <span><i class="fa-solid fa-wrench"></i></span>
+            <span>Cập nhật</span>
+        </button>
+        <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="updateModalLabel">Thông báo</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Cập nhật thành công
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-1">
+
+        </div>
+<!--        xuat file-->
+        <button type="button" class="btn btn-primary col-3" data-bs-toggle="modal" data-bs-target="#exportModal">
+            <span><i class="fa-solid fa-file-export"></i></i></span>
+            <span>Xuất file Excel</span>
+        </button>
+
+        <!-- Modal -->
+        <div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Thông báo</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Xuất file thành công
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<h2 class="text-center m-4">Bảng điểm môn học</h2>
+
+<!--dòng đầu-->
+<div class="row mb-3 mt-3">
+    <div class="col-2">
+
+    </div>
+    <div class="col-3">
+        <select class="form-select">
+            {%if list%}
+            {%for class in list%}
+            <option>{{class.classes.name}}</option>
+            {%endfor%}
+            {%else%}
+            <span>Khong co du lieu</span>
+            {%endif%}
+        </select>
+    </div>
+    <div class="col-2">
+
+    </div>
+    <div class="col-3">
+        <select class="form-select">
+            {% if list %}
+            {% set sbj = [] %}
+            {% for subject in list %}
+            {% if subject.teacher_subjects.subject.name not in sbj %}
+            <option>{{subject.teacher_subjects.subject.name}}</option>
+            {% endif %}
+            {% set _ = sbj.append(subject.teacher_subjects.subject.name) %}
+            {% endfor %}
+            {% else %}
+            <span class="alert alert-danger">Khong Co du lieu </span>
+            {% endif %}
+        </select>
+    </div>
+    <div class="col-2">
+
+    </div>
+</div>
+
+<!--dong 2-->
+<div class="row mb-3 mt-3">
+    <div class="col-2">
+
+    </div>
+    <div class="col-3">
+        <select class="form-select">
+            {% if list %}
+            {% set sbj = [] %}
+            {% for semester in list %}
+            {% if semester.semesters.name.name not in sbj %}
+            <option>{{semester.semesters.name.name}}</option>
+            {% endif %}
+            {% set _ = sbj.append(semester.semesters.name.name) %}
+            {% endfor %}
+            {% else %}
+            <span class="alert alert-danger">Khong Co du lieu </span>
+            {% endif %}
+<!--            {% if list %}-->
+<!--            {% set seen = [] %}-->
+<!--            {% for semester in list %}-->
+<!--            {% if semester.semesters.name.name not in seen %}-->
+<!--            <option>{{ semester.semesters.name.name }}</option>-->
+<!--            {% set _ = seen.append(semester.semesters.name.name) %}-->
+<!--            {% endif %}-->
+<!--            {% endfor %}-->
+<!--            {% else %}-->
+<!--            <span class="alert alert-danger">Không có dữ liệu</span>-->
+<!--            {% endif %}-->
+
+            <!--            {% if list %}-->
+            <!--            {% for semester in list %}-->
+            <!--            <option>{{semester.semesters.name.name}}</option>-->
+            <!--            {% endfor %}-->
+            <!--            {% else %}-->
+            <!--            <span class="alert alert-danger">Khong Co du lieu </span>-->
+            <!--            {% endif %}-->
+        </select>
+    </div>
+    <div class="col-2">
+
+    </div>
+    <div class="col-3">
+        <select class="form-select">
+            {% if list %}
+            {% set sbj = [] %}
+            {% for year in list %}
+            {% if year.semesters.year not in sbj %}
+            <option>{{year.semesters.year}}</option>
+            {% endif %}
+            {% set _ = sbj.append(year.semesters.year) %}
+            {% endfor %}
+            {% else %}
+            <span class="alert alert-danger">Khong Co du lieu </span>
+            {% endif %}
+
+
+<!--            {% if list %}-->
+<!--            {% for year in list %}-->
+<!--            <option>{{year.semesters.year}}</option>-->
+<!--            {% endfor %}-->
+<!--            {% else %}-->
+<!--            <span class="alert alert-danger">Khong Co du lieu </span>-->
+<!--            {% endif %}-->
+        </select>
+    </div>
+    <div class="col-2">
+
+    </div>
+</div>
+
+<!--bang du lieu-->
+<table class="table table-bordered text-center">
+    <thead>
+    <tr>
+        <th>STT</th>
+        <th>Họ tên</th>
+        <th>Điểm 15p</th>
+        <th>Điểm 1 tiết</th>
+        <th>Điểm thi</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>1</td>
+        <td>Nguyễn Văn A</td>
+        <td>
+            <div>10</div>
+            <div>9</div>
+            <div>10</div>
+        </td>
+        <td>
+            <div>10</div>
+            <div>9</div>
+        </td>
+        <td>10</td>
+    </tr>
+    </tbody>
+</table>
+
+
+{% endblock %}

@@ -64,6 +64,12 @@ def manage_student():
     return render_template('manage_student.html',user_page='staff',students=students)
 
 
+@app.route('/teacher_score')
+@role_only([UserRole.TEACHER])
+def teacher_score():
+    return render_template('teacher_score.html')
+
+
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOW_EXTENSIONS

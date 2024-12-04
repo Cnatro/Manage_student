@@ -79,7 +79,7 @@ class Subject(db.Model):
 class Semester(db.Model):
     id = Column(Integer, autoincrement=True, primary_key=True)
     name = Column(Enum(SemesterName))
-    year = Column(DateTime)
+    year = Column(String(20))
 
 
 class StudentClass(db.Model):
@@ -131,6 +131,7 @@ class Exam(db.Model):
 
     teacher_plans = relationship('TeacherPlan',backref='Exam',lazy=True)
     scores = relationship('Score',backref='Exam',lazy=True)
+    student = relationship("Student", backref="exam", lazy=True)
 
 
 class Score(db.Model):
@@ -159,7 +160,7 @@ class Regulation(db.Model):
 
 if __name__ == '__main__':
     with app.app_context():
-        # db.create_all()
+        #db.create_all()
 
         #create user
         profile_1 = Profile(name='Nguyễn Hoàng Long Nhật',email='cnatro23@gmail.com')
@@ -267,19 +268,61 @@ if __name__ == '__main__':
         #     db.session.add(t_s)
         # db.session.commit()
 
-        semesters = [
-            Semester(name=SemesterName.HK1),
-            Semester(name=SemesterName.HK2),
+        #create class
+        classes = [
+            Class(name="10A1", quantity_student=5, grade=Grade.K10,teacher_id = teacher4.id),
+            Class(name="10A2", quantity_student=5, grade=Grade.K10,teacher_id = teacher5.id),
+            Class(name="10A3", quantity_student=5, grade=Grade.K10,teacher_id = teacher6.id),
+
+            Class(name="11A1", quantity_student=5, grade=Grade.K11, teacher_id = teacher4.id),
+            Class(name="11A2", quantity_student=5, grade=Grade.K11,teacher_id = teacher5.id),
+            Class(name="11A3", quantity_student=5, grade=Grade.K11,teacher_id = teacher6.id),
+
+            Class(name="12A1", quantity_student=5, grade=Grade.K12, teacher_id = teacher4.id),
+            Class(name="12A2", quantity_student=5, grade=Grade.K12,teacher_id = teacher5.id),
+            Class(name="12A3", quantity_student=5, grade=Grade.K12,teacher_id = teacher6.id)
         ]
-        # for s in semesters:
-        #     db.session.add(s)
+        # for c in classes:
+        #     db.session.add(c)
         # db.session.commit()
 
+        semesters = [
+            Semester(name=SemesterName.HK1, year="2022-2023"),
+            Semester(name=SemesterName.HK2, year="2022-2023"),
+            Semester(name=SemesterName.HK1, year="2023-2024"),
+            Semester(name=SemesterName.HK2, year="2023-2024")
+        ]
+        for s in semesters:
+            db.session.add(s)
+        db.session.commit()
+
         regulations = [
-            Regulation(type="Student",regulation_name="Số tuổi của học sinh", min=15, max=18,admin_id=admin.id),
-            Regulation(type="Quantity_student",regulation_name="Sỉ số lớp học",min=10,max=40,admin_id=admin.id)
+            Regulation(type="Student", regulation_name="Số tuổi của học sinh", min=15, max=18, admin_id=admin.id),
+            Regulation(type="Quantity_student", regulation_name="Sỉ số lớp học", min=10, max=40, admin_id=admin.id)
         ]
 
         # for regulation in regulations:
         #     db.session.add(regulation)
+        # db.session.commit()
+
+        teacher_plans = [
+            # gv4
+            TeacherPlan(teacher_subject_id=teacher_subject[0].id, class_id=classes[0].id,
+                        semester_id=semesters[0].id),
+            TeacherPlan(teacher_subject_id=teacher_subject[1].id, class_id=classes[3].id,
+                        semester_id=semesters[2].id),
+            TeacherPlan(teacher_subject_id=teacher_subject[2].id, class_id=classes[6].id,
+                        semester_id=semesters[3].id),
+
+            # gv5
+            TeacherPlan(teacher_subject_id=teacher_subject[3].id, class_id=classes[1].id,
+                        semester_id=semesters[0].id),
+            TeacherPlan(teacher_subject_id=teacher_subject[4].id, class_id=classes[4].id,
+                        semester_id=semesters[1].id),
+            TeacherPlan(teacher_subject_id=teacher_subject[5].id, class_id=classes[7].id,
+                        semester_id=semesters[3].id)
+        ]
+
+        # for t_p in teacher_plans:
+        #     db.session.add(t_p)
         # db.session.commit()

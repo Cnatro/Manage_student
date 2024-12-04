@@ -45,5 +45,5 @@ def create_student(name, birthday, gender, address ,email, number_phone,staff_id
     db.session.commit()
 
 
-def load_students(user_id):
-    return Student.query.filter(Student.id.__eq__(user_id))
+def load_students():
+    return Student.query.all()
