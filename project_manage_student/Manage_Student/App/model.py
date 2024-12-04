@@ -79,7 +79,7 @@ class Subject(db.Model):
 class Semester(db.Model):
     id = Column(Integer, autoincrement=True, primary_key=True)
     name = Column(Enum(SemesterName))
-    year = Column(DateTime)
+    year = Column(String(50))
 
 
 class StudentClass(db.Model):
@@ -131,6 +131,7 @@ class Exam(db.Model):
 
     teacher_plans = relationship('TeacherPlan',backref='Exam',lazy=True)
     scores = relationship('Score',backref='Exam',lazy=True)
+    student = relationship("Student", backref="exam", lazy=True)
 
 
 class Score(db.Model):
@@ -283,3 +284,11 @@ if __name__ == '__main__':
         # for regulation in regulations:
         #     db.session.add(regulation)
         # db.session.commit()
+
+# def test(user_id):
+#     return (db.session().query(TeacherPlan)
+#                                 .join(Class)
+#                                 .join(Student)
+#                                 .join(Semester)
+#                                 .join(TeacherSubject)
+#                                 .filter(TeacherSubject.id.__eq__(user_id)).all())

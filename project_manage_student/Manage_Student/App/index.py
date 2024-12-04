@@ -90,8 +90,6 @@ def upload_by_excel():
     return "Thêm dữ liệu không thành công"
 
 
-
-
 @app.route('/add_student',methods=['GET','POST'])
 @role_only([UserRole.STAFF])
 def add_student():
