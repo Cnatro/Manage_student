@@ -111,6 +111,7 @@ class TeacherSubject(db.Model):
     teacher = relationship('User',backref='TeacherSubject',lazy=True)
     subjects = relationship('Subject',backref='TeacherSubject',lazy=True)
 
+
 class TeacherPlan(db.Model):
     id = Column(Integer, autoincrement= True, primary_key=True)
 

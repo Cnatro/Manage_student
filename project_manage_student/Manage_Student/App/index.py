@@ -4,11 +4,14 @@ from werkzeug.utils import redirect
 
 from App import app, login, ALLOW_EXTENSIONS
 from flask_login import login_user, logout_user, current_user,login_required
-from App.dao import auth
-from App.dao.student import*
+
 from App.model import UserRole
 from App.decorators import role_only
+
 from App.form import*
+from App.dao import auth,student,student_class,classes
+
+from App.api.student_class import *
 
 
 # user login
@@ -57,11 +60,14 @@ def home():
     return render_template("index.html",user_page=str.lower(user_page))
 
 
-@app.route('/manage_student')
+# staff
+# quản lí học sinh
+@app.route('/staff/manage_student')
 @role_only([UserRole.STAFF])
 def manage_student():
-    students = load_students()
-    return render_template('manage_student.html',user_page='staff',students=students)
+    students = student_class.load_students()
+    class_ = classes.get_list_class()
+    return render_template('staff/manage_student.html',students=students,class_=class_,user_page='staff')
 
 
 def allowed_file(filename):
@@ -69,7 +75,7 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOW_EXTENSIONS
 
 
-@app.route('/upload_by_excel', methods=['POST','GET'])
+@app.route('/staff/upload_by_excel', methods=['POST','GET'])
 @role_only([UserRole.STAFF])
 def upload_by_excel():
     if 'upload_file' not in request.files:
@@ -82,7 +88,10 @@ def upload_by_excel():
         try:
             datat_file = pandas.read_excel(file)
             data = datat_file.to_dict(orient='records')
-            add_list_student(list_data=data,staff_id=current_user.id)
+            # thêm ds hs vào database
+            student.add_list_student(list_data=data,staff_id=current_user.id)
+            #phân lớp
+            student_class.auto_create_class(6)
         except Exception as e:
             return jsonify({'error':str(e)}),500
         return redirect(url_for('manage_student'))
@@ -90,7 +99,7 @@ def upload_by_excel():
     return "Thêm dữ liệu không thành công"
 
 
-@app.route('/add_student',methods=['GET','POST'])
+@app.route('/staff/add_student',methods=['GET','POST'])
 @role_only([UserRole.STAFF])
 def add_student():
     if request.method == "POST":
@@ -99,15 +108,27 @@ def add_student():
 
         data['staff_id'] = current_user.id
         data['gender'] = int(data['gender'])
-        create_student(**data)
+        student.create_student(**data)
         return redirect(url_for('manage_student'))
     return 'Thêm dữ liệu không thành công'
 
 
+# quản lí danh sách lớp
+@app.route('/staff/create_class')
+@role_only([UserRole.STAFF])
+def create_class():
+    class_ = classes.get_list_class()
+    class_id = request.form.get('class_id',default=None)
+    students_class = student_class.get_list_student_by_class_id(class_id)
+    return render_template('staff/create_class.html',class_=class_,students_class=students_class,user_page='staff')
+
+
+
+#teacher
 @app.route('/teacher_score')
 @role_only([UserRole.TEACHER])
 def teacher_score():
-    return render_template('teacher_score.html')
+    return render_template('teacher/teacher_score.html',user_page='staff')
 
 
 if __name__ == '__main__':

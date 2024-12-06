@@ -1,0 +1,78 @@
+{% extends 'layout/base.html' %}
+
+{% block title %}
+Trang quản lí danh sách lớp
+{% endblock %}
+
+{% block content %}
+<div class="row pb-3 pt-3" id="nav-manage-student">
+    <div class="col-3">
+        <select class="form-select" aria-label="Default select example" id="class_" name="class_">
+            <option value="" selected>Tất cả các lớp</option>
+            {% if class_ %}
+            {% for class in class_ %}
+            <option value="{{class.id}}">{{class.name}}</option>
+            {% endfor %}
+            {% else %}
+            <option>Không có dữ liệu</option>
+            {% endif %}
+        </select>
+    </div>
+    <div class="col-3 ">
+        <span class="form-text p-2 text-dark">Sỉ số: </span>
+    </div>
+</div>
+{% if students_class %}
+<table class="table text-center table-bordered border-primary">
+    <thead>
+    <tr>
+        <th scope="col" class="border-box">STT</th>
+        <th scope="col">
+            <span>Họ và tên</span>
+            <i class="fa-solid fa-chevron-down"></i>
+        </th>
+        <th scope="col">Giới tính</th>
+        <th scope="col">Ngày sinh</th>
+        <th scope="col">Địa chỉ</th>
+        <th scope="col">action</th>
+    </tr>
+    <tr>
+        <th scope="col"></th>
+        <th scope="col">
+            <form class="d-flex" role="search">
+                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+            </form>
+        </th>
+        <th scope="col">
+            <select class="form-select" aria-label="Default select example">
+                <option selected>Chọn</option>
+                <option value="1">One</option>
+                <option value="2">Two</option>
+                <option value="3">Three</option>
+            </select>
+        </th>
+        <th scope="col"></th>
+        <th scope="col"></th>
+    </tr>
+    </thead>
+    <tbody class="table-hover show-student">
+    {% for st in students_class %}
+    <tr>
+        <th scope="row">{{ loop.index }}</th>
+        <td>{{ st.students.profile.name }}</td>
+        <td>{{ st.students.profile.gender }}</td>
+        <td>{% if st.students.profile.birthday %}
+            {{ st.students.profile.birthday.strftime('%d-%m-%Y') }}
+            {% else %}
+            Chưa cập nhật
+            {% endif %}
+        </td>
+        <td>{{ st.students.profile.address }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="alert alert-danger text-center">Không có dữ liệu</div>
+{% endif %}
+{% endblock %}

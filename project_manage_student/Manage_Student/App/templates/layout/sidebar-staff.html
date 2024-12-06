@@ -1,4 +1,4 @@
-<ul class="navbar-nav bg-light">
+<ul class="navbar-nav bg-light" id="main-staff-sidebar">
     <li class="nav-item ps-3">
         <a class="nav-link text-dark" aria-current="page" href="/home">
             <i class="fa-solid fa-house"></i>
@@ -6,7 +6,7 @@
         </a>
     </li>
     <li class="nav-item ps-3">
-        <a class="nav-link text-dark" aria-current="page" href="/manage_student">
+        <a class="nav-link text-dark" aria-current="page" href="/staff/manage_student">
             <i class="fa-solid fa-list-ul"></i>
             <span>Quản lí học sinh</span>
         </a>
@@ -16,6 +16,20 @@
             <i class="fa-solid fa-list-ul"></i>
             <span>Quản lí danh sách lớp</span>
         </a>
+        <ul class="navbar-nav bg-light m-2" id="sub-sidebar">
+            <li class="nav-item ps-1">
+                <a class="nav-link text-dark" href="/staff/create_class">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                    <span>Xem danh sách lớp</span>
+                </a>
+            </li>
+            <li class="nav-item ps-1">
+                <a class="nav-link text-dark" href="">
+                    <i class="fa-regular fa-pen-to-square"></i>
+                    <span>Điều chỉnh lớp</span>
+                </a>
+            </li>
+        </ul>
     </li>
     <li class="nav-item ps-3">
         <a class="nav-link text-dark" aria-current="page" href="/logout">

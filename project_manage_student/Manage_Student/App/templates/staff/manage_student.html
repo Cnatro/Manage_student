@@ -7,12 +7,18 @@ Trang quản lí học sinh
 {% block content %}
 <div class="row pb-3 pt-3" id="nav-manage-student">
     <div class="col-3">
-        <select class="form-select" aria-label="Default select example">
-            <option selected>Tất cả các lớp</option>
-            <option value="1">One</option>
-            <option value="2">Two</option>
-            <option value="3">Three</option>
-        </select>
+        <form action="/create_class" method="POST">
+            <select class="form-select" aria-label="Default select example" id="class_" name="class_">
+                <option selected>Tất cả các lớp</option>
+                {% if class_ %}
+                {% for class in class_ %}
+                <option value="{{class.id}}">{{class.name}}</option>
+                {% endfor %}
+                {% else %}
+                <option>Không có dữ liệu</option>
+                {% endif %}
+            </select>
+        </form>
     </div>
     <div class="col-3">
         <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#add_student">
@@ -28,7 +34,7 @@ Trang quản lí học sinh
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form action="/add_student" method="POST">
+                        <form action="/staff/add_student" method="POST">
                             <div class="form-group mb-3 row">
                                 <div class="col-8">
                                     <label for="name" class="form-label">Họ và tên</label>
@@ -82,7 +88,7 @@ Trang quản lí học sinh
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form action="/upload_by_excel" method="POST" enctype="multipart/form-data">
+                        <form action="/staff/upload_by_excel" method="POST" enctype="multipart/form-data">
                             <div class="form-group pb-4">
                                 <label for="upload_file">Vui lòng chọn file .xlsx</label> <br>
                                 <input type="file" name="upload_file" id="upload_file"/>
@@ -102,6 +108,7 @@ Trang quản lí học sinh
         </button>
     </div>
 </div>
+{% if students %}
 <table class="table text-center table-bordered border-primary" id="list-student">
     <thead>
     <tr>
@@ -114,7 +121,7 @@ Trang quản lí học sinh
         <th scope="col">Ngày sinh</th>
         <th scope="col">Điểm trung bình</th>
         <th scope="col">Học phí</th>
-        <th scope="col">Đạt chuẩn lên lớp</th>
+        <th scope="col">Lớp</th>
         <th scope="col">action</th>
     </tr>
     <tr>
@@ -149,38 +156,30 @@ Trang quản lí học sinh
                 <option value="3">Three</option>
             </select>
         </th>
-        <th scope="col">
-            <select class="form-select" aria-label="Default select example">
-                <option selected>Chọn</option>
-                <option value="1">One</option>
-                <option value="2">Two</option>
-                <option value="3">Three</option>
-            </select>
-        </th>
+        <th scope="col"></th>
         <th scope="col"></th>
     </tr>
     </thead>
-    <tbody class="table-hover">
-    {% if students %}
+    <tbody class="table-hover show-student">
     {% for st in students %}
     <tr>
         <th scope="row">{{ loop.index }}</th>
-        <td>{{ st.profile.name }}</td>
-        <td>{{ st.profile.gender }}</td>
-        <td>{% if st.profile.birthday %}
-            {{ st.profile.birthday.strftime('%d-%m-%Y') }}
+        <td>{{ st.students.profile.name }}</td>
+        <td>{{ st.students.profile.gender }}</td>
+        <td>{% if st.students.profile.birthday %}
+            {{ st.students.profile.birthday.strftime('%d-%m-%Y') }}
             {% else %}
             Chưa cập nhật
             {% endif %}
         </td>
         <td>Điểm</td>
-        <td>{{ st.status_payment }}</td>
-        <td>Lên lớp or chưa</td>
+        <td>{{ st.students.status_payment }}</td>
+        <td>{{st.class_.name}}</td>
     </tr>
     {% endfor %}
-    {% else %}
-    <span class="alert alert-danger">Không có dữ liệu</span>
-    {% endif %}
     </tbody>
 </table>
+{% else %}
+    <div class="alert alert-danger text-center">Không có dữ liệu</div>
+{% endif %}
 {% endblock %}
