@@ -1,0 +1,103 @@
+{% extends 'layout/base.html' %}
+
+{% block title %}
+Trang phân công giảng dạy
+{% endblock %}
+
+{% block content %}
+<h1 class="text-center mt-3">PHÂN CÔNG GIẢNG DẠY</h1>
+<div class="row">
+    <div class="col-md-3 col-6">
+        <label for="learn_year">Năm học : </label>
+        <select class="form-select" aria-label="Default select example" id="learn_year">
+            <option value="">2024-2025</option>
+        </select>
+    </div>
+    <div class="col-md-3 col-6">
+        <label for="level_learn">Cấp học :</label>
+        <input type="text" class="form-control" id="level_learn" value="THPT" disabled/>
+    </div>
+</div>
+<div class="row mt-4">
+    <h3 class="text-info">Thông tin tìm kiếm :</h3>
+    <form action="/staff/assignment_teacher" method="post">
+        <div class="row">
+            <div class="col-md-3 col-6">
+                <label for="grade">Khối : </label>
+                <select class="form-select" aria-label="Default select example" id="grade"
+                        onchange="get_class_by_grade()" name="grade">
+                    <option value="" selected>Chọn khối lớp</option>
+                    <option value="10">Khối 10</option>
+                    <option value="11">Khối 11</option>
+                    <option value="12">Khối 12</option>
+                </select>
+            </div>
+            <div class="col-md-3 col-6">
+                <label for="class_">Lớp : </label>
+                <select class="form-select" aria-label="Default select example" id="class_" name="class_">
+                    <option selected>Chọn lớp</option>
+                </select>
+            </div>
+            <div class="col-md-3 col-6">
+                <button type="submit" class="btn btn-outline-info mt-4 mb-4"
+                        name="btn-search-assignment-teacher-subject">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <span>Tìm kiếm</span>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+<form action="/staff/assignment_teacher/{{grade_value}}/{{class_id}}" method="post">
+    <div class="row">
+        <div class="col-md-3 col-6">
+            <button type="submit" name="action" value="delete" class="btn btn-outline-danger form-control">Xóa tất cả</button>
+        </div>
+        <div class="col-md-3 col-6">
+            <button type="submit" name="action" value="save" class="btn btn-outline-secondary form-control">Lưu</button>
+        </div>
+    </div>
+    <table class="table text-center table-bordered border-primary mt-2" id="teacher_assignment`">
+        <thead>
+        <tr class="row">
+            <th scope="col" class=" col-md-1 border-box">STT</th>
+            <th scope="col" class="col-md-2">Môn học</th>
+            <th scope="col" class="col-md-5">Giáo viên</th>
+            <th scope="col" class="col-md-2">Áp dụng cả 2 kì</th>
+            <th scope="col" class="col-md-1">Học kì 1</th>
+            <th scope="col" class="col-md-1">Học kì 2</th>
+        </tr>
+        </thead>
+        <tbody class="table-hover show-student">
+        {% if subjects %}
+        {% for sb in subjects %}
+        <tr class="row">
+            <th class=" col-md-1">{{ loop.index }}</th>
+            <td class="col-md-2">
+                <input class="text-center form-control" type="text" name="subject" id="" value="{{sb.name}}" disabled/>
+            </td>
+            <td class="col-md-5">
+                <select class="form-select" aria-label="Default select example">
+                    <option selected>Chọn giáo viên</option>
+                    {% for teacher in get_teachers(sb.id) %}
+                    <option value="{{teacher.teacher_id}}">{{teacher.teacher.profile.name}}</option>
+                    {% endfor %}
+                </select>
+            </td>
+            <td class="col-md-2">
+                <input class="form-check-input mt-2 mb-2" type="checkbox"/>
+            </td>
+            <td class="col-md-1">
+                <input class="form-check-input mt-2 mb-2" type="checkbox"/>
+            </td>
+            <td class="col-md-1">
+                <input class="form-check-input mt-2 mb-2" type="checkbox"/>
+            </td>
+        </tr>
+        {% endfor %}
+        {% endif %}
+        </tbody>
+    </table>
+</form>
+<script src="{{url_for('static',filename='js/assignment.js')}}"></script>
+{% endblock %}

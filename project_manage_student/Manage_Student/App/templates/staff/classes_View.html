@@ -7,7 +7,8 @@ Trang quản lí danh sách lớp
 {% block content %}
 <div class="row pb-3 pt-3" id="nav-manage-student">
     <div class="col-3">
-        <select class="form-select" aria-label="Default select example" id="class_" name="class_">
+        <select class="form-select" aria-label="Default select example" id="class_" name="class_"
+                onchange="get_students_by_class(['student_name','gender','birthday','address'])">
             <option value="" selected>Tất cả các lớp</option>
             {% if class_ %}
             {% for class in class_ %}
@@ -19,7 +20,7 @@ Trang quản lí danh sách lớp
         </select>
     </div>
     <div class="col-3 ">
-        <span class="form-text p-2 text-dark">Sỉ số: </span>
+        <span class="form-text p-2 text-dark" id="quantity_student">Sỉ số: </span>
     </div>
 </div>
 {% if students_class %}

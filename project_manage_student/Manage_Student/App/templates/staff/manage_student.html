@@ -7,18 +7,17 @@ Trang quản lí học sinh
 {% block content %}
 <div class="row pb-3 pt-3" id="nav-manage-student">
     <div class="col-3">
-        <form action="/create_class" method="POST">
-            <select class="form-select" aria-label="Default select example" id="class_" name="class_">
-                <option selected>Tất cả các lớp</option>
-                {% if class_ %}
-                {% for class in class_ %}
-                <option value="{{class.id}}">{{class.name}}</option>
-                {% endfor %}
-                {% else %}
-                <option>Không có dữ liệu</option>
-                {% endif %}
-            </select>
-        </form>
+        <select class="form-select" aria-label="Default select example" id="class_" name="class_"
+          onchange="get_students_by_class(['student_name','gender','birthday','total_core','status_payment','class_name'])">
+            <option value="" selected>Tất cả các lớp</option>
+            {% if class_ %}
+            {% for class in class_ %}
+            <option value="{{class.id}}">{{class.name}}</option>
+            {% endfor %}
+            {% else %}
+            <option>Không có dữ liệu</option>
+            {% endif %}
+        </select>
     </div>
     <div class="col-3">
         <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#add_student">
@@ -180,6 +179,6 @@ Trang quản lí học sinh
     </tbody>
 </table>
 {% else %}
-    <div class="alert alert-danger text-center">Không có dữ liệu</div>
+<div class="alert alert-danger text-center">Không có dữ liệu</div>
 {% endif %}
 {% endblock %}

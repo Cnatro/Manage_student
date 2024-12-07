@@ -1,7 +1,5 @@
-$(document).ready(function(){
-    document.getElementById('class_').addEventListener('change', function() {
-        const selectedValue = this.value;
-//        console.log(selectedValue)
+function get_students_by_class(columns){
+    const selectedValue = document.getElementById("class_").value;
         fetch('/api/student_class',{
               method:'post',
               headers:{
@@ -12,21 +10,26 @@ $(document).ready(function(){
               })
         }).then(res => res.json())
           .then(data => {
+               // cập nhật học sinh
                let $items= $('.show-student');
                $items[0].innerHTML = "";
-               console.log($items)
                let index = 1;
                for( let key in data.students){
                     const student = data.students[key];
-                    $items.append(`<tr>
-                            <th scope="row">${index++}</th>
-                            <td>${student.student_name}</td>
-                            <td>${student.gender}</td>
-                            <td>${student.birthday}</td>
-                            <td>${student.address}</td>
-                            <td>&times;</td>
-                        </tr>`);
+                    let row = `<tr>
+                        <th scope="row">${index++}</th>`;
+
+                        // Lặp qua các cột được chỉ định
+                        columns.forEach(col => {
+                            row += `<td>${student[col] || 'chưa cập nhật'}</td>`;
+                        });
+
+                        row += `<td>&times;</td>`; // Cột "action" mặc định
+                        row += `</tr>`;
+                        $items.append(row);
                };
+               // cập nhật sỉ số
+//                let quantity_student = getElementById('quantity_student');
+//                quantity_student.innerText = data.total_quantity;
           });
-    });
-});
+}

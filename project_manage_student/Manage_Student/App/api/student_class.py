@@ -5,10 +5,11 @@ from App.dao import student_class
 @app.route('/api/student_class',methods=['post'])
 def get_students_by_class():
     class_id = request.json.get('class_id')
-    print(class_id)
+    # print(class_id)
     students_array = student_class.get_list_student_by_class_id(class_id)
 
     students_json = {}
+    class_info = {}
     # chuyển array => json
     if students_array:
         for st in students_array:
@@ -24,9 +25,11 @@ def get_students_by_class():
                 'email':st.students.profile.email,
                 'number_phone':st.students.profile.number_phone,
                 'status_payment':st.students.status_payment,
-                'class_name':st.class_.name,
-                'quantity_student':st.class_.quantity_student,
-                'grade':str(st.class_.grade),
-                'teacher_id':st.class_.teacher_id
+                'class_name': students_array[0].class_.name,
             }
-    return jsonify({'students':students_json})
+        class_info = {
+            'quantity_student': students_array[0].class_.quantity_student,
+            'grade': str(students_array[0].class_.grade),
+            'teacher_id': students_array[0].class_.teacher_id
+        }
+    return jsonify({'students':students_json,'class_':class_info})

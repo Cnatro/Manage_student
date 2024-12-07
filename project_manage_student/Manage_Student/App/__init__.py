@@ -11,5 +11,7 @@ ALLOW_EXTENSIONS = {'xlsx'}
 app.config["SQLALCHEMY_DATABASE_URI"] ="mysql+pymysql://root:%s@localhost/managestudent?charset=utf8mb4" %quote("Admin123@")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
 
+
 db = SQLAlchemy(app)
 login = LoginManager(app)
+
