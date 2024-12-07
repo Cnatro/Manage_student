@@ -11,7 +11,7 @@ function get_class_by_grade(){
         })
     }).then(res => res.json())
       .then(data => {
-            console.info(data.class_list)
+//            console.info(data.class_list)
             data.class_list.forEach((c) =>{
                 var option_ = document.createElement('option');
                 option_.value = `${c.class_id}`;
@@ -19,4 +19,28 @@ function get_class_by_grade(){
                 class_list.append(option_);
             })
       });
+}
+
+function check_semester(subject_id,type_semester){
+    const semesters = document.getElementById(`semesters-${subject_id}`);
+    const semester1 = document.getElementById(`semester1-${subject_id}`);
+    const semester2 = document.getElementById(`semester2-${subject_id}`);
+
+    if(type_semester == 'total'){
+        if(semesters.checked === true){
+            semester1.checked = true;
+            semester2.checked = true;
+        }else
+        {
+            semester1.checked = false;
+            semester2.checked = false;
+        }
+    }else{
+        if(semester1.checked == false || semester2.checked == false){
+            semesters.checked = false;
+        }
+        if(semester1.checked == true && semester2.checked == true)
+            semesters.checked = true;
+    }
+
 }

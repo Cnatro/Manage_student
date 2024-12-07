@@ -10,7 +10,7 @@ from App.model import UserRole
 from App.decorators import role_only
 
 from App.form import *
-from App.dao import auth, student, teacher_subject,assignment
+from App.dao import auth, student, teacher_subject
 
 from App.api.student_class import *
 from App.api.teacher_assignment import *
@@ -69,7 +69,8 @@ def home():
 def manage_student():
     students = student_class.load_students()
     class_ = classes.get_list_class()
-    return render_template('staff/manage_student.html', students=students, class_=class_, user_page='staff')
+    is_show_student = request.args.get('is_show_student')
+    return render_template('staff/manage_student.html', students=students, class_=class_,is_show_student=is_show_student, user_page='staff')
 
 
 def allowed_file(filename):
@@ -96,7 +97,9 @@ def upload_by_excel():
             student_class.auto_create_class(6)
         except Exception as e:
             return jsonify({'error': str(e)}), 500
-        return redirect(url_for('manage_student'))
+
+        is_show_student = request.form.get('btn_upload_file')
+        return redirect(url_for('manage_student',is_show_student=is_show_student))
 
     return "Thêm dữ liệu không thành công"
 
@@ -124,6 +127,11 @@ def create_class():
     students_class = student_class.get_list_student_by_class_id(class_id)
     return render_template('staff/classes_View.html', class_=class_, students_class=students_class, user_page='staff')
 
+@app.route('/staff/adjust_class')
+@role_only([UserRole.STAFF])
+def adjust_class():
+    return render_template('/staff/adjust_class.html',user_page='staff')
+
 
 # phân công giảng dạy
 @app.route('/staff/assignment_teacher', methods=['GET', 'POST'])
@@ -141,7 +149,7 @@ def teacher_subject_assignment(grade_value, class_id):
     # xử lí action save and delete
     if request.method == 'POST':
         action_name = request.form.get('action')
-        handle_action(action_name)
+        handle_action(action_name)(class_id)
 
     # xử lí show khi tìm kiếm grade và class
     subjects = teacher_subject.get_subjects_by_grade(Grade(grade_value))

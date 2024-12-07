@@ -8,7 +8,7 @@ Trang quản lí học sinh
 <div class="row pb-3 pt-3" id="nav-manage-student">
     <div class="col-3">
         <select class="form-select" aria-label="Default select example" id="class_" name="class_"
-          onchange="get_students_by_class(['student_name','gender','birthday','total_core','status_payment','class_name'])">
+                onchange="get_students_by_class(['student_name','gender','birthday','total_core','status_payment','class_name'])">
             <option value="" selected>Tất cả các lớp</option>
             {% if class_ %}
             {% for class in class_ %}
@@ -93,7 +93,9 @@ Trang quản lí học sinh
                                 <input type="file" name="upload_file" id="upload_file"/>
                             </div>
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Quay lại</button>
-                            <button type="submit" class="btn btn-primary" name="btn_upload_file">Ghi nhận</button>
+                            <button type="submit" class="btn btn-primary" name="btn_upload_file" value="show-true">Ghi
+                                nhận
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -160,6 +162,7 @@ Trang quản lí học sinh
     </tr>
     </thead>
     <tbody class="table-hover show-student">
+    {% if is_show_student %}
     {% for st in students %}
     <tr>
         <th scope="row">{{ loop.index }}</th>
@@ -176,6 +179,7 @@ Trang quản lí học sinh
         <td>{{st.class_.name}}</td>
     </tr>
     {% endfor %}
+    {% endif %}
     </tbody>
 </table>
 {% else %}

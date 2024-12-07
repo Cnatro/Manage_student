@@ -48,7 +48,7 @@ Trang phân công giảng dạy
         </div>
     </form>
 </div>
-<form action="/staff/assignment_teacher/{{grade_value}}/{{class_id}}" method="post">
+<form action="/staff/assignment_teacher/{{grade_value}}/{{class_id}}" method="POST">
     <div class="row">
         <div class="col-md-3 col-6">
             <button type="submit" name="action" value="delete" class="btn btn-outline-danger form-control">Xóa tất cả</button>
@@ -74,10 +74,11 @@ Trang phân công giảng dạy
         <tr class="row">
             <th class=" col-md-1">{{ loop.index }}</th>
             <td class="col-md-2">
-                <input class="text-center form-control" type="text" name="subject" id="" value="{{sb.name}}" disabled/>
+                <input class="text-center form-control" type="hidden" name="subject_id" value="{{sb.id}}"/>
+                <input class="text-center form-control" type="text" id="" value="{{sb.name}}" disabled/>
             </td>
             <td class="col-md-5">
-                <select class="form-select" aria-label="Default select example">
+                <select class="form-select" aria-label="Default select example" name="teacher_subject_id-{{sb.id}}">
                     <option selected>Chọn giáo viên</option>
                     {% for teacher in get_teachers(sb.id) %}
                     <option value="{{teacher.teacher_id}}">{{teacher.teacher.profile.name}}</option>
@@ -85,13 +86,16 @@ Trang phân công giảng dạy
                 </select>
             </td>
             <td class="col-md-2">
-                <input class="form-check-input mt-2 mb-2" type="checkbox"/>
+                <input class="form-check-input mt-2 mb-2" type="checkbox" id="semesters-{{sb.id}}"
+                       onchange="check_semester({{sb.id}},'total')"  value="both" name="semester-{{sb.id}}"/>
             </td>
             <td class="col-md-1">
-                <input class="form-check-input mt-2 mb-2" type="checkbox"/>
+                <input class="form-check-input mt-2 mb-2" type="checkbox" id="semester1-{{sb.id}}"
+                       onchange="check_semester({{sb.id}},'sub-total')" value="1" name="semester-{{sb.id}}"/>
             </td>
             <td class="col-md-1">
-                <input class="form-check-input mt-2 mb-2" type="checkbox"/>
+                <input class="form-check-input mt-2 mb-2" type="checkbox" id="semester2-{{sb.id}}"
+                       onchange="check_semester({{sb.id}},'sub-total')" value="2" name="semester-{{sb.id}}"/>
             </td>
         </tr>
         {% endfor %}
