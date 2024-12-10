@@ -1,12 +1,13 @@
 import pandas
-from flask import render_template, url_for, request, flash, jsonify
+from flask import render_template, url_for
+import random
 from werkzeug.utils import redirect
 
 from App import app, login, ALLOW_EXTENSIONS
 from flask_login import login_user, logout_user, current_user, login_required
 
 from App.dao.assignment import handle_action
-from App.model import UserRole
+from App.model import UserRole, StudentClass
 from App.decorators import role_only
 
 from App.form import *
@@ -69,8 +70,7 @@ def home():
 def manage_student():
     students = student_class.load_students()
     class_ = classes.get_list_class()
-    is_show_student = request.args.get('is_show_student')
-    return render_template('staff/manage_student.html', students=students, class_=class_,is_show_student=is_show_student, user_page='staff')
+    return render_template('staff/manage_student.html', students=students, class_=class_, user_page='staff')
 
 
 def allowed_file(filename):
@@ -94,12 +94,12 @@ def upload_by_excel():
             # thêm ds hs vào database
             student.add_list_student(list_data=data, staff_id=current_user.id)
             # phân lớp
-            student_class.auto_create_class(6)
+            quantity_student_less = random.randint(app.config['QUANTITY_STUDENT'] - 5,app.config['QUANTITY_STUDENT'])
+            student_class.auto_create_class(quantity_student_less)
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
-        is_show_student = request.form.get('btn_upload_file')
-        return redirect(url_for('manage_student',is_show_student=is_show_student))
+        return redirect(url_for('manage_student'))
 
     return "Thêm dữ liệu không thành công"
 
@@ -127,10 +127,18 @@ def create_class():
     students_class = student_class.get_list_student_by_class_id(class_id)
     return render_template('staff/classes_View.html', class_=class_, students_class=students_class, user_page='staff')
 
-@app.route('/staff/adjust_class')
+
+@app.route('/staff/adjust_class',methods=['GET','POST'])
 @role_only([UserRole.STAFF])
 def adjust_class():
-    return render_template('/staff/adjust_class.html',user_page='staff')
+    classes_none = classes.get_list_class_less_quantity(app.config['QUANTITY_STUDENT'])
+    if request.method == "POST":
+        student_id = request.form.get('student_id')
+        class_id = request.form.get('class_id')
+        print(student_id)
+        print(class_id)
+
+    return render_template('/staff/adjust_class.html',classes_none=classes_none,user_page='staff')
 
 
 # phân công giảng dạy

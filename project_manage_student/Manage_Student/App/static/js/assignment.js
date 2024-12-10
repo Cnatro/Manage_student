@@ -16,7 +16,10 @@ function get_class_by_grade(){
                 var option_ = document.createElement('option');
                 option_.value = `${c.class_id}`;
                 option_.textContent = `${c.class_name}`;
+
                 class_list.append(option_);
+                // kích hoạt sự kiện onchange luôn khi mới tạo
+                class_list.dispatchEvent(new Event('change'));
             })
       });
 }

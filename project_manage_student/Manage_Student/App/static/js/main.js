@@ -1,4 +1,4 @@
-function get_students_by_class(columns){
+function get_students_by_class(columns,type=false){
     const selectedValue = document.getElementById("class_").value;
         fetch('/api/student_class',{
               method:'post',
@@ -23,8 +23,11 @@ function get_students_by_class(columns){
                         columns.forEach(col => {
                             row += `<td>${student[col] || 'chưa cập nhật'}</td>`;
                         });
-
-                        row += `<td>&times;</td>`; // Cột "action" mặc định
+                        if(type === true){
+                            row += `<td><input class="form-check-input mt-2 mb-2 child-check" type="checkbox"
+                             name='student_id' value='${student.student_id}' onchange="check_all_adjust()"/></td>`
+                        }else
+                            row += `<td>&times;</td>`; // Cột "action" mặc định
                         row += `</tr>`;
                         $items.append(row);
                };

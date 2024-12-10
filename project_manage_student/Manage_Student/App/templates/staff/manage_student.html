@@ -65,7 +65,7 @@ Trang quản lí học sinh
                                 <label for="address" class="form-label">Địa chỉ</label>
                                 <textarea class="form-control" id="address" name="address" rows="3"></textarea>
                             </div>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Quay lại</button>
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Quay lại</button>
                             <button type="submit" class="btn btn-primary" name="btn_add_student">Ghi nhận</button>
                         </form>
                     </div>
@@ -92,7 +92,7 @@ Trang quản lí học sinh
                                 <label for="upload_file">Vui lòng chọn file .xlsx</label> <br>
                                 <input type="file" name="upload_file" id="upload_file"/>
                             </div>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Quay lại</button>
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Quay lại</button>
                             <button type="submit" class="btn btn-primary" name="btn_upload_file" value="show-true">Ghi
                                 nhận
                             </button>
@@ -162,7 +162,6 @@ Trang quản lí học sinh
     </tr>
     </thead>
     <tbody class="table-hover show-student">
-    {% if is_show_student %}
     {% for st in students %}
     <tr>
         <th scope="row">{{ loop.index }}</th>
@@ -179,7 +178,6 @@ Trang quản lí học sinh
         <td>{{st.class_.name}}</td>
     </tr>
     {% endfor %}
-    {% endif %}
     </tbody>
 </table>
 {% else %}

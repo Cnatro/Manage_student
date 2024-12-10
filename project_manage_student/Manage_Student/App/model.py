@@ -269,42 +269,7 @@ if __name__ == '__main__':
         #     db.session.add(t_s)
         # db.session.commit()
 
-        # create class
-        classes = [
-            Class(name="10A1", quantity_student=5, grade=Grade.K10),
-            Class(name="10A2", quantity_student=5, grade=Grade.K10),
-            Class(name="10A3", quantity_student=5, grade=Grade.K10),
 
-            Class(name="11A1", quantity_student=5, grade=Grade.K11),
-            Class(name="11A2", quantity_student=5, grade=Grade.K11),
-            Class(name="11A3", quantity_student=5, grade=Grade.K11),
-
-            Class(name="12A1", quantity_student=5, grade=Grade.K12),
-            Class(name="12A2", quantity_student=5, grade=Grade.K12),
-            Class(name="12A3", quantity_student=5, grade=Grade.K12)
-        ]
-        # for c in classes:
-        #     db.session.add(c)
-        # db.session.commit()
-
-        # creat teacher_class
-        # teacher_class = [
-        #     # toán
-        #     TeacherClass(teacher_id=teacher4.id, class_id = classes[0].id),
-        #     TeacherClass(teacher_id=teacher4.id, class_id = classes[3].id),
-        #     TeacherClass(teacher_id=teacher4.id, class_id = classes[6].id),
-        #
-        #     TeacherClass(teacher_id=teacher5.id, class_id=classes[1].id),
-        #     TeacherClass(teacher_id=teacher5.id, class_id=classes[4].id),
-        #     TeacherClass(teacher_id=teacher6.id, class_id=classes[7].id),
-        #
-        #     TeacherClass(teacher_id=teacher7.id, class_id=classes[2].id),
-        #     TeacherClass(teacher_id=teacher8.id, class_id=classes[5].id),
-        #     TeacherClass(teacher_id=teacher9.id, class_id=classes[8].id)
-        # ]
-        # for t_c in teacher_class:
-        #     db.session.add(t_c)
-        # db.session.commit()
 
         semesters = [
             Semester(name=SemesterName.HK1, year="2022-2023"),
@@ -325,43 +290,3 @@ if __name__ == '__main__':
         #     db.session.add(regulation)
         # db.session.commit()
 
-        # #cu
-        # teacher_plans = [
-        #     #gv4
-        #     TeacherPlan(teacher_id = teacher4.id,subject_id=subjects[0].id, class_id = classes[0].id,
-        #                 semester_id = semesters[0].id),
-        #     TeacherPlan(teacher_id=teacher4.id,subject_id=subjects[3].id, class_id=classes[6].id,
-        #                 semester_id=semesters[2].id),
-        #     TeacherPlan(teacher_id = teacher4.id,subject_id=subjects[6].id, class_id = classes[12].id,
-        #                 semester_id = semesters[3].id),
-        #
-        #     #gv5
-        #     TeacherPlan(teacher_id=teacher5.id,subject_id=subjects[1].id, class_id=classes[1].id,
-        #                 semester_id=semesters[0].id),
-        #     TeacherPlan(teacher_id=teacher5.id,subject_id=subjects[4].id, class_id=classes[7].id,
-        #                 semester_id=semesters[1].id),
-        #     TeacherPlan(teacher_id=teacher5.id,subject_id=subjects[7].id, class_id=classes[13].id,
-        #                 semester_id=semesters[3].id)
-        # ]
-
-        teacher_plans = [
-            # gv4
-            TeacherPlan(teacher_subject_id=teacher_subject[0].id, class_id=classes[0].id,
-                        semester_id=semesters[0].id),
-            TeacherPlan(teacher_subject_id=teacher_subject[1].id, class_id=classes[3].id,
-                        semester_id=semesters[2].id),
-            TeacherPlan(teacher_subject_id=teacher_subject[2].id, class_id=classes[6].id,
-                        semester_id=semesters[3].id),
-
-            # gv5
-            TeacherPlan(teacher_subject_id=teacher_subject[3].id, class_id=classes[1].id,
-                        semester_id=semesters[0].id),
-            TeacherPlan(teacher_subject_id=teacher_subject[4].id, class_id=classes[4].id,
-                        semester_id=semesters[1].id),
-            TeacherPlan(teacher_subject_id=teacher_subject[5].id, class_id=classes[7].id,
-                        semester_id=semesters[3].id)
-        ]
-
-        # # for t_p in teacher_plans:
-        #     db.session.add(t_p)
-        # db.session.commit()

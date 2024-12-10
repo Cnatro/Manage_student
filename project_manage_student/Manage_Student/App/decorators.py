@@ -9,7 +9,7 @@ def role_only(roles):
         def decorated_function(*args, **kwargs):
             if current_user.user_role not in roles:
                 flash("Quyền truy cập không phù hợp")
-                return redirect(url_for('index'))
+                return redirect(url_for('login_process'))
             else:
                 return f(*args, **kwargs)
         return decorated_function
