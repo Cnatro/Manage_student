@@ -2,15 +2,14 @@ import random
 from sqlalchemy import delete
 from sqlalchemy import func
 
-from App.model import Student, Class, Grade, StudentClass, User, UserRole, Score, Exam, TeacherPlan
+from App.model import Student, Class, Grade, StudentClass, User, UserRole, Score, Exam, TeacherPlan, Profile
 from App import db
 
 
 def auto_create_class(quantity_student):
     global class_
     # outerjoin = leftJoin
-    students = (db.session.query(Student).outerjoin(StudentClass, Student.id.__eq__(StudentClass.student_id))
-                .filter(StudentClass.student_id.__eq__(None)).all())
+    students = get_list_student_no_class()
 
     teacher_masters = User.query.filter(User.user_role.__eq__(UserRole.TEACHER)).all()
     count = 0
@@ -35,11 +34,20 @@ def auto_create_class(quantity_student):
     count_student_of_class()
 
 
-def get_list_student_by_class_id(class_id=None):
+def get_list_student(class_id=None, value_name=None):
     query = StudentClass.query
     if class_id:
         return query.filter(StudentClass.class_id.__eq__(class_id)).all()
+    if value_name:
+        return (query.join(Profile,Profile.id == StudentClass.student_id)
+                .filter(Profile.name.contains(value_name)).all())
     return query.all()
+
+
+def get_list_student_no_class():
+    query = (db.session.query(Student).outerjoin(StudentClass, Student.id.__eq__(StudentClass.student_id))
+     .filter(StudentClass.student_id.__eq__(None)).all())
+    return query
 
 
 def load_students():
@@ -90,9 +98,6 @@ def reset_info_students(old_students):
     exam_ids = [ ex.id for ex in old_students ]
     class_ids = { ex.teacher_plans.classes.id for ex in old_students }
 
-    print(student_ids)
-    print(exam_ids)
-    print(class_ids)
     query_score = delete(Score).where(Score.exam_id.in_(exam_ids))
     query_exam = delete(Exam).where(Exam.student_id.in_(student_ids))
     query_teacher_plan = delete(TeacherPlan).where(TeacherPlan.class_id.in_(class_ids))
@@ -106,3 +111,10 @@ def reset_info_students(old_students):
     # print("Deleted rows in TeacherPlan:", result_teacher_plan.rowcount)
     db.session.commit()
 
+
+def add_student_class(student_ids, class_id):
+    for id in student_ids:
+        st = StudentClass(student_id=id, class_id=class_id)
+        db.session.add(st)
+    db.session.commit()
+    count_student_of_class()

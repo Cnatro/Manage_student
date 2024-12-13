@@ -124,15 +124,19 @@ def add_student():
 
 
 # quản lí danh sách lớp
-@app.route('/staff/classes_View')
+@app.route('/staff/classes_View',methods=['GET','POST'])
 @role_only([UserRole.STAFF])
 def create_class():
+    if request.method == "POST":
+        class_id = request.form.get('class_id')
+        student_ids = request.form.getlist('student_id')
+        student_class.add_student_class(student_ids=student_ids, class_id=class_id)
+        
     class_ = classes.get_list_class()
-    class_id = request.form.get('class_id', default=None)
-    students_class = student_class.get_list_student_by_class_id(class_id)
+    students_no_class = student_class.get_list_student_no_class()
     return render_template('staff/classes_View.html',
                            class_=class_,
-                           students_class=students_class,
+                           students_no_class=students_no_class,
                            user_page='staff')
 
 
@@ -156,15 +160,17 @@ def change_class():
 def adjust_class():
     if request.method == "POST":
         grade_id = int(request.form.get('grade_id'))
-
-        # lấy thông tin hs cũ và lưu vào file excel
-        info_students_old_grade = exam.get_info_old_students(grade_=Grade(grade_id))
-        data_old_students = exam.get_info_students_for_excel(info_students_old_grade)
-        utils.export_excel(data=data_old_students,year_learn=data_old_students[0]['learn_year'])
-
-        #cập nhận lại thông tin cho hs lên lớp xóa thông tin cũ
-        student_class.update_class(old_students=info_students_old_grade,grade=Grade(grade_id).value)
-        student_class.reset_info_students(old_students=info_students_old_grade)
+        if grade_id:
+            # lấy thông tin hs cũ và lưu vào file excel
+            info_students_old_grade = exam.get_info_old_students(grade_=Grade(grade_id))
+            if info_students_old_grade:
+                data_old_students = exam.get_info_students_for_excel(info_students_old_grade)
+                utils.export_excel(data=data_old_students, year_learn=data_old_students[0]['learn_year'])
+                # cập nhận lại thông tin cho hs lên lớp xóa thông tin cũ
+                student_class.update_class(old_students=info_students_old_grade, grade=Grade(grade_id).value)
+                student_class.reset_info_students(old_students=info_students_old_grade)
+            else:
+                return "Thuc hien khong thanh cong"
 
     return render_template('/staff/adjust_class.html', user_page='staff')
 

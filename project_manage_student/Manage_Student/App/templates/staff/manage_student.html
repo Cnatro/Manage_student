@@ -49,7 +49,7 @@ Trang quản lí học sinh
                                     </select>
                                 </div>
                             </div>
-                            <div class="form-group mb-3">
+                            <div class="form-group mb-3 row">
                                 <label for="birthday" class="form-label">Ngày sinh</label>
                                 <input type="date" name="birthday" id="birthday" class="form-control"/>
                             </div>
@@ -102,12 +102,6 @@ Trang quản lí học sinh
             </div>
         </div>
     </div>
-    <div class="col-3 ">
-        <button type="button" class="btn btn-outline-primary">
-            <i class="fa-solid fa-arrow-right-from-bracket"></i>
-            <span>Xuất liệu file excel</span>
-        </button>
-    </div>
 </div>
 {% if students %}
 <table class="table text-center table-bordered border-primary" id="list-student">
@@ -129,46 +123,26 @@ Trang quản lí học sinh
         <th scope="col"></th>
         <th scope="col">
             <form class="d-flex" role="search">
-                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"
+                       id="search" oninput="search_name_student(['student_name','gender','birthday','total_core','status_payment','class_name'])">
             </form>
         </th>
-        <th scope="col">
-            <select class="form-select" aria-label="Default select example">
-                <option selected>Chọn</option>
-                <option value="1">One</option>
-                <option value="2">Two</option>
-                <option value="3">Three</option>
-            </select>
-        </th>
         <th scope="col"></th>
-        <th scope="col">
-            <select class="form-select" aria-label="Default select example">
-                <option selected>Chọn</option>
-                <option value="1">One</option>
-                <option value="2">Two</option>
-                <option value="3">Three</option>
-            </select>
-        </th>
-        <th scope="col">
-            <select class="form-select" aria-label="Default select example">
-                <option selected>Chọn</option>
-                <option value="1">One</option>
-                <option value="2">Two</option>
-                <option value="3">Three</option>
-            </select>
-        </th>
+        <th scope="col"></th>
+        <th scope="col"></th>
+        <th scope="col"></th>
         <th scope="col"></th>
         <th scope="col"></th>
     </tr>
     </thead>
-    <tbody class="table-hover show-student">
+    <tbody class="show-student">
     {% for st in students %}
     <tr>
         <th scope="row">{{ loop.index }}</th>
         <td>{{ st.students.profile.name }}</td>
         <td>{{ st.students.profile.gender }}</td>
         <td>{% if st.students.profile.birthday %}
-            {{ st.students.profile.birthday.strftime('%d-%m-%Y') }}
+                {{ st.students.profile.birthday.strftime('%d-%m-%Y') }}
             {% else %}
             Chưa cập nhật
             {% endif %}
@@ -176,6 +150,7 @@ Trang quản lí học sinh
         <td>Điểm</td>
         <td>{{ st.students.status_payment }}</td>
         <td>{{st.class_.name}}</td>
+        <td>x</td>
     </tr>
     {% endfor %}
     </tbody>

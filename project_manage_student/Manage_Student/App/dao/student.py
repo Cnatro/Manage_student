@@ -1,7 +1,7 @@
 from wtforms.validators import email
 
 from App import db
-from App.model import Student, Profile
+from App.model import Student, Profile, StudentClass
 
 
 def add_list_student(list_data, staff_id):
@@ -28,4 +28,5 @@ def create_student(name, birthday, gender, address ,email, number_phone,staff_id
     st = Student(id=p.id, staff_id=staff_id)
     db.session.add(st)
     db.session.commit()
+
 

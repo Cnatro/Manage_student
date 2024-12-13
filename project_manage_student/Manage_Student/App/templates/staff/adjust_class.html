@@ -38,7 +38,7 @@ Trang phân công giảng dạy
                         <form action="/staff/adjust_class" method="POST">
                             <div class="form-group mb-4">
                                 <select class="form-select" aria-label="Default select example" id="grade_"
-                                         name="grade_id">
+                                        name="grade_id">
                                     <option value="" selected>Chọn khối lớp</option>
                                     <option value="10">Khối 10</option>
                                     <option value="11">Khối 11</option>
@@ -69,15 +69,11 @@ Trang phân công giảng dạy
                     <th scope="col"></th>
                     <th scope="col">
                         <form class="d-flex" role="search">
-                            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"
+                                   id="search" oninput="search_name_student(['student_name','gender'],true)">
                         </form>
                     </th>
-                    <th scope="col">
-                        <select class="form-select" aria-label="Default select example">
-                            <option selected>Chọn</option>
-                            <option value="0">Nam</option>
-                            <option value="1">Nữ</option>
-                        </select>
+                    <th scope=" col">
                     </th>
                     <th scope="col">
                         <input class="form-check-input mt-2 mb-2" type="checkbox" id="parent-check"

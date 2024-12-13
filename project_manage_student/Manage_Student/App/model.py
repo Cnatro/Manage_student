@@ -1,7 +1,7 @@
 import enum
 import hashlib
 
-from App import app,db
+from App import app, db
 from sqlalchemy import Integer, Column, String, ForeignKey, Float, DateTime, Boolean, Text, Enum, CheckConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy import func
@@ -27,54 +27,54 @@ class SemesterName(enum.Enum):
 
 
 class Profile(db.Model):
-    id = Column(Integer,autoincrement=True,primary_key=True)
+    id = Column(Integer, autoincrement=True, primary_key=True)
     name = Column(String(50))
     birthday = Column(DateTime)
     gender = Column(Boolean)
     address = Column(Text)
-    email = Column(String(50),unique=True,nullable=False)
-    number_phone = Column(String(10),unique=True)
+    email = Column(String(50), unique=True, nullable=False)
+    number_phone = Column(String(10), unique=True)
 
 
-class User(db.Model,UserMixin):
-    id = Column(Integer,ForeignKey(Profile.id),primary_key=True)
+class User(db.Model, UserMixin):
+    id = Column(Integer, ForeignKey(Profile.id), primary_key=True)
     username = Column(String(50), unique=True)
     password = Column(String(50), nullable=False)
     user_role = Column(Enum(UserRole))
-    create_day = Column(DateTime,default=func.now())
+    create_day = Column(DateTime, default=func.now())
     last_login = Column(DateTime)
 
-    profile = relationship('Profile',backref='user',lazy=True)
+    profile = relationship('Profile', backref='user', lazy=True)
     # staff
-    staff_students = relationship('Student',backref='user',lazy=True)
+    staff_students = relationship('Student', backref='user', lazy=True)
     # teacher
-    teach_classes = relationship('Class',backref='user',lazy=True)
+    teach_classes = relationship('Class', backref='user', lazy=True)
 
 
 class Student(db.Model):
-    id = Column(Integer,ForeignKey(Profile.id), primary_key=True)
-    status_payment = Column(Boolean,default=False)
+    id = Column(Integer, ForeignKey(Profile.id), primary_key=True)
+    status_payment = Column(Boolean, default=False)
 
-    staff_id = Column(Integer, ForeignKey(User.id),nullable=False)
+    staff_id = Column(Integer, ForeignKey(User.id), nullable=False)
 
-    profile = relationship('Profile',backref='student',lazy=True)
+    profile = relationship('Profile', backref='student', lazy=True)
 
 
 class Class(db.Model):
-    id = Column(Integer,primary_key=True,autoincrement=True)
-    name = Column(String(20),nullable=False)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(20), nullable=False)
     quantity_student = Column(Integer)
     grade = Column(Enum(Grade))
 
-    teacher_id = Column(Integer,ForeignKey(User.id),nullable=False)
+    teacher_id = Column(Integer, ForeignKey(User.id), nullable=False)
 
 
 class Subject(db.Model):
-    id = Column(Integer, autoincrement=True, primary_key= True)
+    id = Column(Integer, autoincrement=True, primary_key=True)
     name = Column(String(50))
     grade = Column(Enum(Grade))
-    number_of_15p = Column(Integer,default=1)
-    number_of_45p = Column(Integer,default=1)
+    number_of_15p = Column(Integer, default=1)
+    number_of_45p = Column(Integer, default=1)
 
 
 class Semester(db.Model):
@@ -84,65 +84,65 @@ class Semester(db.Model):
 
 
 class StudentClass(db.Model):
-    id = Column(Integer,autoincrement=True, primary_key=True)
+    id = Column(Integer, autoincrement=True, primary_key=True)
 
-    student_id = Column(Integer,ForeignKey(Student.id), nullable=False)
-    class_id = Column(Integer,ForeignKey(Class.id),nullable=False)
+    student_id = Column(Integer, ForeignKey(Student.id), nullable=False)
+    class_id = Column(Integer, ForeignKey(Class.id), nullable=False)
 
-    students = relationship('Student',backref='student_class',lazy=True)
-    class_ = relationship('Class',backref='student_class',lazy=True)
+    students = relationship('Student', backref='student_class', lazy=True)
+    class_ = relationship('Class', backref='student_class', lazy=True)
 
 
 class StaffClass(db.Model):
-    id = Column(Integer,autoincrement=True,primary_key=True)
+    id = Column(Integer, autoincrement=True, primary_key=True)
 
-    staff_id = Column(Integer,ForeignKey(User.id), nullable=False)
-    class_id = Column(Integer,ForeignKey(Class.id), nullable = False)
+    staff_id = Column(Integer, ForeignKey(User.id), nullable=False)
+    class_id = Column(Integer, ForeignKey(Class.id), nullable=False)
 
-    staff = relationship('User',backref='staff_class',lazy=True)
-    class_ = relationship('Class',backref='staff_class',lazy=True)
+    staff = relationship('User', backref='staff_class', lazy=True)
+    class_ = relationship('Class', backref='staff_class', lazy=True)
 
 
 class TeacherSubject(db.Model):
-    id = Column(Integer, autoincrement= True, primary_key=True)
+    id = Column(Integer, autoincrement=True, primary_key=True)
 
-    teacher_id = Column(Integer, ForeignKey(User.id), nullable= False)
-    subject_id  = Column(Integer, ForeignKey(Subject.id), nullable= False)
+    teacher_id = Column(Integer, ForeignKey(User.id), nullable=False)
+    subject_id = Column(Integer, ForeignKey(Subject.id), nullable=False)
 
-    teacher = relationship('User',backref='teacher_subject',lazy=True)
-    subjects = relationship('Subject',backref='teacher_subject',lazy=True)
+    teacher = relationship('User', backref='teacher_subject', lazy=True)
+    subjects = relationship('Subject', backref='teacher_subject', lazy=True)
 
 
 class TeacherPlan(db.Model):
-    id = Column(Integer, autoincrement= True, primary_key=True)
+    id = Column(Integer, autoincrement=True, primary_key=True)
 
     teacher_subject_id = Column(Integer, ForeignKey(TeacherSubject.id), nullable=False)
-    class_id = Column(Integer, ForeignKey(Class.id), nullable= False)
-    semester_id = Column(Integer, ForeignKey(Semester.id ), nullable= False)
+    class_id = Column(Integer, ForeignKey(Class.id), nullable=False)
+    semester_id = Column(Integer, ForeignKey(Semester.id), nullable=False)
 
-    teacher_subjects = relationship('TeacherSubject',backref='teacher_plan',lazy=True)
-    semester = relationship('Semester',backref='teacher_plan',lazy=True)
-    classes = relationship('Class',backref='teacher_plan',lazy=True)
+    teacher_subjects = relationship('TeacherSubject', backref='teacher_plan', lazy=True)
+    semester = relationship('Semester', backref='teacher_plan', lazy=True)
+    classes = relationship('Class', backref='teacher_plan', lazy=True)
 
 
 class Exam(db.Model):
-    id = Column(Integer,primary_key=True,autoincrement=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
 
-    teacher_plan_id = Column(Integer,ForeignKey(TeacherPlan.id),nullable=False)
-    student_id = Column(Integer,ForeignKey(Student.id),nullable=False)
+    teacher_plan_id = Column(Integer, ForeignKey(TeacherPlan.id), nullable=False)
+    student_id = Column(Integer, ForeignKey(Student.id), nullable=False)
 
-    teacher_plans = relationship('TeacherPlan',backref='exam',lazy=True)
-    scores = relationship('Score',backref='exam',lazy=True)
+    teacher_plans = relationship('TeacherPlan', backref='exam', lazy=True)
+    scores = relationship('Score', backref='exam', lazy=True)
     student = relationship("Student", backref="exam", lazy=True)
 
 
 class Score(db.Model):
-    id = Column(Integer,autoincrement=True, primary_key=True)
+    id = Column(Integer, autoincrement=True, primary_key=True)
     type_exam = Column(String(20), nullable=False)
-    value = Column(Float,nullable=False)
+    value = Column(Float, nullable=False)
     count_exam = Column(Integer)
 
-    exam_id = Column(Integer,ForeignKey(Exam.id),nullable=False)
+    exam_id = Column(Integer, ForeignKey(Exam.id), nullable=False)
 
     __table_args__ = (
         CheckConstraint('value >= 0', name='check_value_min'),
@@ -151,7 +151,7 @@ class Score(db.Model):
 
 
 class Regulation(db.Model):
-    id = Column(Integer,primary_key=True,autoincrement=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     type = Column(String(50))
     regulation_name = Column(String(100))
     min = Column(Integer)
@@ -164,51 +164,76 @@ if __name__ == '__main__':
     with app.app_context():
         # db.create_all()
 
-        #create user
-        profile_1 = Profile(name='Nguyễn Hoàng Long Nhật',email='cnatro23@gmail.com')
+        # create user
+        profile_1 = Profile(name='Nguyễn Hoàng Long Nhật', email='cnatro23@gmail.com')
         profile_2 = Profile(name='Trần Lê Nhân', email='nhantran.011004@gmail.com')
         profile_3 = Profile(name='Hồ Ngọc Thái', email='ngocthai@gmail.com')
-        # db.session.add_all([profile_1,profile_2,profile_3])
+        # db.session.add_all([profile_1, profile_2, profile_3])
         # db.session.commit()
 
-        #create account
-        admin = User(id=profile_1.id,username="Cnatro",password=str(hashlib.md5('Admin123@'.encode('utf-8')).hexdigest()),user_role=UserRole.STAFF)
-        acc2 = User(id=profile_2.id,username="NhanTran",password=str(hashlib.md5('Nhan123@'.encode('utf-8')).hexdigest()), user_role=UserRole.TEACHER)
-        acc3 = User(id=profile_3.id,username="NgocThai",password=str(hashlib.md5('Thai123@'.encode('utf-8')).hexdigest()), user_role=UserRole.ADMIN)
+        # create account
+        admin = User(id=profile_1.id, username="Cnatro",
+                     password=str(hashlib.md5('Admin123@'.encode('utf-8')).hexdigest()), user_role=UserRole.STAFF)
+        acc2 = User(id=profile_2.id, username="NhanTran",
+                    password=str(hashlib.md5('Nhan123@'.encode('utf-8')).hexdigest()), user_role=UserRole.TEACHER)
+        acc3 = User(id=profile_3.id, username="NgocThai",
+                    password=str(hashlib.md5('Thai123@'.encode('utf-8')).hexdigest()), user_role=UserRole.ADMIN)
 
-        # db.session.add_all([admin,acc2,acc3])
+        # db.session.add_all([admin, acc2, acc3])
         # db.session.commit()
 
         # create teacher
-        p4 = Profile(name="Giáo viên toán 10 11 12", email="GV4@gmail.com")
-        p5 = Profile(name="Giáo viên lý 10 11 12", email="GV5@gmail.com")
-        p6 = Profile(name="Giáo viên hóa 10 11 12", email="GV6@gmail.com")
-        p7 = Profile(name="Giáo viên sinh 10 11 12", email="GV7@gmail.com")
-        p8 = Profile(name="Giáo viên văn 10 11 12" ,email="GV8@gmail.com")
-        p9 = Profile(name="Giáo viên anh 10 11 12", email="GV9@gmail.com")
+        p4 = Profile(name="Giáo viên toán 10 11", email="GV4@gmail.com")
+        p5 = Profile(name="Giáo viên lý 10 11", email="GV5@gmail.com")
+        p6 = Profile(name="Giáo viên hóa 10 11", email="GV6@gmail.com")
+        p7 = Profile(name="Giáo viên sinh 10 11", email="GV7@gmail.com")
+        p8 = Profile(name="Giáo viên văn 10 11", email="GV8@gmail.com")
+        p9 = Profile(name="Giáo viên anh 10 11", email="GV9@gmail.com")
 
-        # db.session.add_all([p4,p5,p6,p7,p8,p9])
+        p10 = Profile(name="Giáo viên toán 11 12", email="GV10@gmail.com")
+        p11 = Profile(name="Giáo viên lý 11 12", email="GV11@gmail.com")
+        p12 = Profile(name="Giáo viên hóa 11 12", email="GV12@gmail.com")
+        p13 = Profile(name="Giáo viên sinh 11 12", email="GV13@gmail.com")
+        p14 = Profile(name="Giáo viên văn 11 12", email="GV14@gmail.com")
+        p15 = Profile(name="Giáo viên anh 11 12", email="GV15@gmail.com")
+
+        # db.session.add_all([p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15])
         # db.session.commit()
 
-        teacher4 = User(id=p4.id,username="Gv4",password=str(hashlib.md5('Gv4123@'.encode('utf-8')).hexdigest()),
-                    user_role=UserRole.TEACHER)
+        teacher4 = User(id=p4.id, username="Gv4", password=str(hashlib.md5('Gv4123@'.encode('utf-8')).hexdigest()),
+                        user_role=UserRole.TEACHER)
         teacher5 = User(id=p5.id, username="Gv5", password=str(hashlib.md5('Gv5123@'.encode('utf-8')).hexdigest()),
-                    user_role=UserRole.TEACHER)
+                        user_role=UserRole.TEACHER)
         teacher6 = User(id=p6.id, username="Gv6", password=str(hashlib.md5('Gv6123@'.encode('utf-8')).hexdigest()),
-                    user_role=UserRole.TEACHER)
+                        user_role=UserRole.TEACHER)
         teacher7 = User(id=p7.id, username="Gv7", password=str(hashlib.md5('Gv7123@'.encode('utf-8')).hexdigest()),
-                    user_role=UserRole.TEACHER)
+                        user_role=UserRole.TEACHER)
         teacher8 = User(id=p8.id, username="Gv8", password=str(hashlib.md5('Gv8123@'.encode('utf-8')).hexdigest()),
-                    user_role=UserRole.TEACHER)
+                        user_role=UserRole.TEACHER)
         teacher9 = User(id=p9.id, username="Gv9", password=str(hashlib.md5('Gv9123@'.encode('utf-8')).hexdigest()),
-                    user_role=UserRole.TEACHER)
+                        user_role=UserRole.TEACHER)
 
-        # db.session.add_all([teacher4, teacher5, teacher6, teacher7, teacher8, teacher9])
+        teacher10 = User(id=p10.id, username="Gv10", password=str(hashlib.md5('Gv10123@'.encode('utf-8')).hexdigest()),
+                         user_role=UserRole.TEACHER)
+        teacher11 = User(id=p11.id, username="Gv11", password=str(hashlib.md5('Gv11123@'.encode('utf-8')).hexdigest()),
+                         user_role=UserRole.TEACHER)
+        teacher12 = User(id=p12.id, username="Gv12", password=str(hashlib.md5('Gv12123@'.encode('utf-8')).hexdigest()),
+                         user_role=UserRole.TEACHER)
+        teacher13 = User(id=p13.id, username="Gv13", password=str(hashlib.md5('Gv13123@'.encode('utf-8')).hexdigest()),
+                         user_role=UserRole.TEACHER)
+        teacher14 = User(id=p14.id, username="Gv14", password=str(hashlib.md5('Gv14123@'.encode('utf-8')).hexdigest()),
+                         user_role=UserRole.TEACHER)
+        teacher15 = User(id=p15.id, username="Gv15", password=str(hashlib.md5('Gv15123@'.encode('utf-8')).hexdigest()),
+                         user_role=UserRole.TEACHER)
+
+        # db.session.add_all(
+        #     [teacher4, teacher5, teacher6, teacher7, teacher8, teacher9, teacher10, teacher11, teacher12, teacher13,
+        #      teacher14, teacher15])
         # db.session.commit()
 
-        #create subject
+        # create subject
         subjects = [
-            Subject(name="Toán", grade=Grade.K10, number_of_15p=3,number_of_45p=3),
+            Subject(name="Toán", grade=Grade.K10, number_of_15p=3, number_of_45p=3),
             Subject(name="Lý", grade=Grade.K10, number_of_15p=3, number_of_45p=3),
             Subject(name="Hóa", grade=Grade.K10, number_of_15p=3, number_of_45p=3),
             Subject(name="Sinh", grade=Grade.K10, number_of_15p=3, number_of_45p=3),
@@ -234,53 +259,59 @@ if __name__ == '__main__':
         # db.session.commit()
 
         # create teacher_subject
-        teacher_subject =[
+        teacher_subject = [
             # toán
             TeacherSubject(teacher_id=teacher4.id, subject_id=subjects[0].id),
             TeacherSubject(teacher_id=teacher4.id, subject_id=subjects[6].id),
-            TeacherSubject(teacher_id=teacher4.id, subject_id=subjects[12].id),
+            TeacherSubject(teacher_id=teacher10.id, subject_id=subjects[6].id),
+            TeacherSubject(teacher_id=teacher10.id, subject_id=subjects[12].id),
 
             # lý
             TeacherSubject(teacher_id=teacher5.id, subject_id=subjects[1].id),
             TeacherSubject(teacher_id=teacher5.id, subject_id=subjects[7].id),
-            TeacherSubject(teacher_id=teacher5.id, subject_id=subjects[13].id),
+            TeacherSubject(teacher_id=teacher11.id, subject_id=subjects[7].id),
+            TeacherSubject(teacher_id=teacher11.id, subject_id=subjects[13].id),
 
             # hóa
             TeacherSubject(teacher_id=teacher6.id, subject_id=subjects[2].id),
             TeacherSubject(teacher_id=teacher6.id, subject_id=subjects[8].id),
-            TeacherSubject(teacher_id=teacher6.id, subject_id=subjects[14].id),
+            TeacherSubject(teacher_id=teacher12.id, subject_id=subjects[8].id),
+            TeacherSubject(teacher_id=teacher12.id, subject_id=subjects[14].id),
 
             # sinh
             TeacherSubject(teacher_id=teacher7.id, subject_id=subjects[3].id),
             TeacherSubject(teacher_id=teacher7.id, subject_id=subjects[9].id),
-            TeacherSubject(teacher_id=teacher7.id, subject_id=subjects[15].id),
+            TeacherSubject(teacher_id=teacher13.id, subject_id=subjects[9].id),
+            TeacherSubject(teacher_id=teacher13.id, subject_id=subjects[15].id),
 
             # van
             TeacherSubject(teacher_id=teacher8.id, subject_id=subjects[4].id),
             TeacherSubject(teacher_id=teacher8.id, subject_id=subjects[10].id),
-            TeacherSubject(teacher_id=teacher8.id, subject_id=subjects[16].id),
+            TeacherSubject(teacher_id=teacher14.id, subject_id=subjects[10].id),
+            TeacherSubject(teacher_id=teacher14.id, subject_id=subjects[16].id),
 
             # anh
             TeacherSubject(teacher_id=teacher9.id, subject_id=subjects[5].id),
             TeacherSubject(teacher_id=teacher9.id, subject_id=subjects[11].id),
-            TeacherSubject(teacher_id=teacher9.id, subject_id=subjects[17].id),
+            TeacherSubject(teacher_id=teacher15.id, subject_id=subjects[11].id),
+            TeacherSubject(teacher_id=teacher15.id, subject_id=subjects[17].id),
         ]
 
         # for t_s in teacher_subject:
         #     db.session.add(t_s)
         # db.session.commit()
 
-
-
         semesters = [
             Semester(name=SemesterName.HK1, year="2022-2023"),
             Semester(name=SemesterName.HK2, year="2022-2023"),
             Semester(name=SemesterName.HK1, year="2023-2024"),
-            Semester(name=SemesterName.HK2, year="2023-2024")
+            Semester(name=SemesterName.HK2, year="2023-2024"),
+            Semester(name=SemesterName.HK2, year="2024-2025"),
+            Semester(name=SemesterName.HK2, year="2024-2025"),
         ]
-        # for s in semesters:
-        #     db.session.add(s)
-        # db.session.commit()
+        for s in semesters:
+            db.session.add(s)
+        db.session.commit()
 
         regulations = [
             Regulation(type="Student", regulation_name="Số tuổi của học sinh", min=15, max=18, admin_id=admin.id),
@@ -293,37 +324,24 @@ if __name__ == '__main__':
 
         # 10A1
         exams = [
-            Exam(teacher_plan_id =13,student_id=11),
-            Exam(teacher_plan_id =13,student_id=12),
-            Exam(teacher_plan_id =25,student_id=14),
-            Exam(teacher_plan_id =13,student_id=15),
-            Exam(teacher_plan_id =13,student_id=16),
-            Exam(teacher_plan_id =13,student_id=17),
-            Exam(teacher_plan_id =13,student_id=18),
-            Exam(teacher_plan_id =13,student_id=19),
-            Exam(teacher_plan_id =13,student_id=20),
-            Exam(teacher_plan_id =13,student_id=21),
-            Exam(teacher_plan_id =13,student_id=22),
-            Exam(teacher_plan_id =13,student_id=23),
-            Exam(teacher_plan_id =13,student_id=24),
-            Exam(teacher_plan_id =13,student_id=25),
-            Exam(teacher_plan_id =13,student_id=26),
-            Exam(teacher_plan_id =13,student_id=27),
-            Exam(teacher_plan_id =13,student_id=28),
-            Exam(teacher_plan_id =20,student_id=48),
-            Exam(teacher_plan_id =20,student_id=49),
-            Exam(teacher_plan_id =20,student_id=50),
+            Exam(teacher_plan_id=1, student_id=17),
+            Exam(teacher_plan_id=1, student_id=18),
+            Exam(teacher_plan_id=1, student_id=19),
+            Exam(teacher_plan_id=1, student_id=20),
+            Exam(teacher_plan_id=1, student_id=21),
+            Exam(teacher_plan_id=1, student_id=22),
+            Exam(teacher_plan_id=1, student_id=23),
+            Exam(teacher_plan_id=1, student_id=24),
+            Exam(teacher_plan_id=1, student_id=25),
+            Exam(teacher_plan_id=1, student_id=26),
+            Exam(teacher_plan_id=1, student_id=27),
+            Exam(teacher_plan_id=1, student_id=28),
+            Exam(teacher_plan_id=1, student_id=29),
+            Exam(teacher_plan_id=1, student_id=30),
+            Exam(teacher_plan_id=1, student_id=31),
+            Exam(teacher_plan_id=1, student_id=32),
+            Exam(teacher_plan_id=1, student_id=33),
         ]
-        # 10a2
-        # exams = [
-        #     Exam(teacher_plan_id=7, student_id=29),
-        #     Exam(teacher_plan_id=7, student_id=30),
-        #     Exam(teacher_plan_id=7, student_id=31),
-        #     Exam(teacher_plan_id=7, student_id=32),
-        #     Exam(teacher_plan_id=7, student_id=33),
-        #     Exam(teacher_plan_id=7, student_id=34),
-        #     Exam(teacher_plan_id=7, student_id=35),
-        # ]
         # for ex in exams:
         #     db.session.add(ex)
         # db.session.commit()
@@ -331,9 +349,9 @@ if __name__ == '__main__':
         # 2 cột 15p 1 cột 1 tiết
         scores = [
             # hs a
-            Score(type_exam="15p",value=10,exam_id=exams[0].id),
-            Score(type_exam="15p",value=10,exam_id=exams[0].id),
-            Score(type_exam="1h",value=8,exam_id=exams[0].id),
+            Score(type_exam="15p", value=10, exam_id=exams[0].id),
+            Score(type_exam="15p", value=10, exam_id=exams[0].id),
+            Score(type_exam="1h", value=8, exam_id=exams[0].id),
 
             Score(type_exam="15p", value=8, exam_id=exams[1].id),
             Score(type_exam="15p", value=7, exam_id=exams[1].id),
@@ -398,18 +416,6 @@ if __name__ == '__main__':
             Score(type_exam="15p", value=8, exam_id=exams[16].id),
             Score(type_exam="15p", value=7, exam_id=exams[16].id),
             Score(type_exam="1h", value=6, exam_id=exams[16].id),
-
-            Score(type_exam="15p", value=8, exam_id=exams[17].id),
-            Score(type_exam="15p", value=7, exam_id=exams[17].id),
-            Score(type_exam="1h", value=6, exam_id=exams[17].id),
-
-            Score(type_exam="15p", value=8, exam_id=exams[18].id),
-            Score(type_exam="15p", value=7, exam_id=exams[18].id),
-            Score(type_exam="1h", value=6, exam_id=exams[18].id),
-
-            Score(type_exam="15p", value=8, exam_id=exams[19].id),
-            Score(type_exam="15p", value=7, exam_id=exams[19].id),
-            Score(type_exam="1h", value=6, exam_id=exams[19].id),
 
         ]
         # for ex in scores:

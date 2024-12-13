@@ -5,75 +5,87 @@ Trang quản lí danh sách lớp
 {% endblock %}
 
 {% block content %}
-<div class="row pb-3 pt-3" id="nav-manage-student">
-    <div class="col-3">
-        <select class="form-select" aria-label="Default select example" id="class_" name="class_"
-                onchange="get_students_by_class(['student_name','gender','birthday','address'])">
-            <option value="" selected>Tất cả các lớp</option>
+<form action="/staff/classes_View" method="post">
+    <div class="row pb-3 pt-3">
+        <div class="col-md-6">
             {% if class_ %}
-            {% for class in class_ %}
-            <option value="{{class.id}}">{{class.name}}</option>
-            {% endfor %}
+            <table class="table text-center table-bordered border-primary">
+                <thead>
+                <tr>
+                    <th scope="col" class="border-box">STT</th>
+                    <th scope="col">Tên lớp</th>
+                    <th scope="col">Giáo viên chủ nhiệm</th>
+                    <th scope="col">Sỉ số</th>
+                    <th scope="col">Action</th>
+                </tr>
+                </thead>
+                <tbody class="table-hover show-student">
+                {% for c in class_ %}
+                <tr>
+                    <th scope="row">{{ loop.index }}</th>
+                    <td>{{ c.name }}</td>
+                    <td>{{ c.user.profile.name }}</td>
+                    <td>{{ c.quantity_student }}</td>
+                    <td><input class="form-check-input p-2 action-checkbox" type="checkbox" value="{{c.id}}"
+                               name="class_id"/>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
             {% else %}
-            <option>Không có dữ liệu</option>
+            <div class="alert alert-danger text-center">Không có dữ liệu</div>
             {% endif %}
-        </select>
-    </div>
-    <div class="col-3 ">
-        <span class="form-text p-2 text-dark" id="quantity_student">Sỉ số: </span>
-    </div>
-</div>
-{% if students_class %}
-<table class="table text-center table-bordered border-primary">
-    <thead>
-    <tr>
-        <th scope="col" class="border-box">STT</th>
-        <th scope="col">
-            <span>Họ và tên</span>
-            <i class="fa-solid fa-chevron-down"></i>
-        </th>
-        <th scope="col">Giới tính</th>
-        <th scope="col">Ngày sinh</th>
-        <th scope="col">Địa chỉ</th>
-        <th scope="col">action</th>
-    </tr>
-    <tr>
-        <th scope="col"></th>
-        <th scope="col">
-            <form class="d-flex" role="search">
-                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-            </form>
-        </th>
-        <th scope="col">
-            <select class="form-select" aria-label="Default select example">
-                <option selected>Chọn</option>
-                <option value="1">One</option>
-                <option value="2">Two</option>
-                <option value="3">Three</option>
-            </select>
-        </th>
-        <th scope="col"></th>
-        <th scope="col"></th>
-    </tr>
-    </thead>
-    <tbody class="table-hover show-student">
-    {% for st in students_class %}
-    <tr>
-        <th scope="row">{{ loop.index }}</th>
-        <td>{{ st.students.profile.name }}</td>
-        <td>{{ st.students.profile.gender }}</td>
-        <td>{% if st.students.profile.birthday %}
-            {{ st.students.profile.birthday.strftime('%d-%m-%Y') }}
+        </div>
+        <div class="col-md-6">
+            <h3>Danh sách học sinh chưa có lớp</h3>
+            {% if class_ %}
+            <table class="table text-center table-bordered border-primary">
+                <thead>
+                <tr>
+                    <th scope="col" class="border-box">STT</th>
+                    <th scope="col">Họ và tên</th>
+                    <th scope="col">Giới tính</th>
+                    <th scope="col">Action</th>
+                </tr>
+                </thead>
+                <tbody class="table-hover show-student">
+                {% if students_no_class %}
+                {% for st in students_no_class %}
+                <tr>
+                    <th scope="row">{{ loop.index }}</th>
+                    <td>{{ st.profile.name }}</td>
+                    <td>{{ st.profile.gender }}</td>
+                    <td><input class="form-check-input p-2" type="checkbox" value="{{st.id}}" name="student_id"/>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% endif %}
+                </tbody>
+            </table>
             {% else %}
-            Chưa cập nhật
+            <div class="alert alert-danger text-center">Không có dữ liệu</div>
             {% endif %}
-        </td>
-        <td>{{ st.students.profile.address }}</td>
-    </tr>
-    {% endfor %}
-    </tbody>
-</table>
-{% else %}
-<div class="alert alert-danger text-center">Không có dữ liệu</div>
-{% endif %}
+        </div>
+    </div>
+    <button class="btn btn-outline-primary" type="submit">Lưu</button>
+</form>
+<script>
+    window.onload = function(){
+        const checkboxes = document.querySelectorAll('.action-checkbox');
+
+        checkboxes.forEach((checkbox) => {
+            checkbox.addEventListener('change', function () {
+                if (this.checked) {
+                    checkboxes.forEach((cb) => {
+                        if (cb !== this) {
+                            cb.checked = false;
+                        }
+                    });
+                }
+            });
+        });
+    }
+
+</script>
 {% endblock %}
