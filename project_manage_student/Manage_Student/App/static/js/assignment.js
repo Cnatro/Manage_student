@@ -47,3 +47,28 @@ function check_semester(subject_id,type_semester){
     }
 
 }
+
+function value_of_semesters(){
+    const semester_year = document.getElementById('learn_year').value;
+    fetch('/api/teacher_assignment/get_value_year',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+            'year':semester_year
+        })
+    }).then(res => res.json())
+      .then(data => {
+            const semester1s = document.getElementsByClassName('semester1');
+            const semester2s = document.getElementsByClassName('semester2');
+
+            for( s of semester1s ){
+               let name = data.values.find( item => item.name === 'HK1')
+               if(name) s.value = name.id;
+            }
+
+            for( s of semester2s ){
+               let name = data.values.find( item => item.name === 'HK2')
+               if(name) s.value = name.id;
+            }
+      });
+}

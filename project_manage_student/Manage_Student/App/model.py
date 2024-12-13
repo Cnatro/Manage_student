@@ -15,6 +15,7 @@ class UserRole(enum.Enum):
 
 
 class Grade(enum.Enum):
+    # name = value
     K10 = 10
     K11 = 11
     K12 = 12
@@ -43,11 +44,11 @@ class User(db.Model,UserMixin):
     create_day = Column(DateTime,default=func.now())
     last_login = Column(DateTime)
 
-    profile = relationship('Profile',backref='User',lazy=True)
+    profile = relationship('Profile',backref='user',lazy=True)
     # staff
-    staff_students = relationship('Student',backref='User',lazy=True)
+    staff_students = relationship('Student',backref='user',lazy=True)
     # teacher
-    teach_classes = relationship('Class',backref='User',lazy=True)
+    teach_classes = relationship('Class',backref='user',lazy=True)
 
 
 class Student(db.Model):
@@ -56,7 +57,7 @@ class Student(db.Model):
 
     staff_id = Column(Integer, ForeignKey(User.id),nullable=False)
 
-    profile = relationship('Profile',backref='Student',lazy=True)
+    profile = relationship('Profile',backref='student',lazy=True)
 
 
 class Class(db.Model):
@@ -88,8 +89,8 @@ class StudentClass(db.Model):
     student_id = Column(Integer,ForeignKey(Student.id), nullable=False)
     class_id = Column(Integer,ForeignKey(Class.id),nullable=False)
 
-    students = relationship('Student',backref='StudentClass',lazy=True)
-    class_ = relationship('Class',backref='StudentClass',lazy=True)
+    students = relationship('Student',backref='student_class',lazy=True)
+    class_ = relationship('Class',backref='student_class',lazy=True)
 
 
 class StaffClass(db.Model):
@@ -98,8 +99,8 @@ class StaffClass(db.Model):
     staff_id = Column(Integer,ForeignKey(User.id), nullable=False)
     class_id = Column(Integer,ForeignKey(Class.id), nullable = False)
 
-    staff = relationship('User',backref='StaffClass',lazy=True)
-    class_ = relationship('Class',backref='StaffClass',lazy=True)
+    staff = relationship('User',backref='staff_class',lazy=True)
+    class_ = relationship('Class',backref='staff_class',lazy=True)
 
 
 class TeacherSubject(db.Model):
@@ -108,8 +109,8 @@ class TeacherSubject(db.Model):
     teacher_id = Column(Integer, ForeignKey(User.id), nullable= False)
     subject_id  = Column(Integer, ForeignKey(Subject.id), nullable= False)
 
-    teacher = relationship('User',backref='TeacherSubject',lazy=True)
-    subjects = relationship('Subject',backref='TeacherSubject',lazy=True)
+    teacher = relationship('User',backref='teacher_subject',lazy=True)
+    subjects = relationship('Subject',backref='teacher_subject',lazy=True)
 
 
 class TeacherPlan(db.Model):
@@ -119,9 +120,9 @@ class TeacherPlan(db.Model):
     class_id = Column(Integer, ForeignKey(Class.id), nullable= False)
     semester_id = Column(Integer, ForeignKey(Semester.id ), nullable= False)
 
-    teacher_subjects = relationship('TeacherSubject',backref='TeacherPlan',lazy=True)
-    semester = relationship('Semester',backref='TeacherPlan',lazy=True)
-    classes = relationship('Class',backref='TeacherPlan',lazy=True)
+    teacher_subjects = relationship('TeacherSubject',backref='teacher_plan',lazy=True)
+    semester = relationship('Semester',backref='teacher_plan',lazy=True)
+    classes = relationship('Class',backref='teacher_plan',lazy=True)
 
 
 class Exam(db.Model):
@@ -130,8 +131,8 @@ class Exam(db.Model):
     teacher_plan_id = Column(Integer,ForeignKey(TeacherPlan.id),nullable=False)
     student_id = Column(Integer,ForeignKey(Student.id),nullable=False)
 
-    teacher_plans = relationship('TeacherPlan',backref='Exam',lazy=True)
-    scores = relationship('Score',backref='Exam',lazy=True)
+    teacher_plans = relationship('TeacherPlan',backref='exam',lazy=True)
+    scores = relationship('Score',backref='exam',lazy=True)
     student = relationship("Student", backref="exam", lazy=True)
 
 
@@ -290,3 +291,127 @@ if __name__ == '__main__':
         #     db.session.add(regulation)
         # db.session.commit()
 
+        # 10A1
+        exams = [
+            Exam(teacher_plan_id =13,student_id=11),
+            Exam(teacher_plan_id =13,student_id=12),
+            Exam(teacher_plan_id =25,student_id=14),
+            Exam(teacher_plan_id =13,student_id=15),
+            Exam(teacher_plan_id =13,student_id=16),
+            Exam(teacher_plan_id =13,student_id=17),
+            Exam(teacher_plan_id =13,student_id=18),
+            Exam(teacher_plan_id =13,student_id=19),
+            Exam(teacher_plan_id =13,student_id=20),
+            Exam(teacher_plan_id =13,student_id=21),
+            Exam(teacher_plan_id =13,student_id=22),
+            Exam(teacher_plan_id =13,student_id=23),
+            Exam(teacher_plan_id =13,student_id=24),
+            Exam(teacher_plan_id =13,student_id=25),
+            Exam(teacher_plan_id =13,student_id=26),
+            Exam(teacher_plan_id =13,student_id=27),
+            Exam(teacher_plan_id =13,student_id=28),
+            Exam(teacher_plan_id =20,student_id=48),
+            Exam(teacher_plan_id =20,student_id=49),
+            Exam(teacher_plan_id =20,student_id=50),
+        ]
+        # 10a2
+        # exams = [
+        #     Exam(teacher_plan_id=7, student_id=29),
+        #     Exam(teacher_plan_id=7, student_id=30),
+        #     Exam(teacher_plan_id=7, student_id=31),
+        #     Exam(teacher_plan_id=7, student_id=32),
+        #     Exam(teacher_plan_id=7, student_id=33),
+        #     Exam(teacher_plan_id=7, student_id=34),
+        #     Exam(teacher_plan_id=7, student_id=35),
+        # ]
+        # for ex in exams:
+        #     db.session.add(ex)
+        # db.session.commit()
+
+        # 2 cột 15p 1 cột 1 tiết
+        scores = [
+            # hs a
+            Score(type_exam="15p",value=10,exam_id=exams[0].id),
+            Score(type_exam="15p",value=10,exam_id=exams[0].id),
+            Score(type_exam="1h",value=8,exam_id=exams[0].id),
+
+            Score(type_exam="15p", value=8, exam_id=exams[1].id),
+            Score(type_exam="15p", value=7, exam_id=exams[1].id),
+            Score(type_exam="1h", value=6, exam_id=exams[1].id),
+
+            Score(type_exam="15p", value=6, exam_id=exams[2].id),
+            Score(type_exam="15p", value=10, exam_id=exams[2].id),
+            Score(type_exam="1h", value=8, exam_id=exams[2].id),
+
+            Score(type_exam="15p", value=10, exam_id=exams[3].id),
+            Score(type_exam="15p", value=10, exam_id=exams[3].id),
+            Score(type_exam="1h", value=8, exam_id=exams[3].id),
+
+            Score(type_exam="15p", value=8, exam_id=exams[4].id),
+            Score(type_exam="15p", value=7, exam_id=exams[4].id),
+            Score(type_exam="1h", value=6, exam_id=exams[4].id),
+
+            Score(type_exam="15p", value=6, exam_id=exams[5].id),
+            Score(type_exam="15p", value=10, exam_id=exams[5].id),
+            Score(type_exam="1h", value=8, exam_id=exams[5].id),
+
+            Score(type_exam="15p", value=10, exam_id=exams[6].id),
+            Score(type_exam="15p", value=10, exam_id=exams[6].id),
+            Score(type_exam="1h", value=8, exam_id=exams[6].id),
+
+            Score(type_exam="15p", value=8, exam_id=exams[7].id),
+            Score(type_exam="15p", value=7, exam_id=exams[7].id),
+            Score(type_exam="1h", value=6, exam_id=exams[7].id),
+
+            Score(type_exam="15p", value=6, exam_id=exams[8].id),
+            Score(type_exam="15p", value=10, exam_id=exams[8].id),
+            Score(type_exam="1h", value=8, exam_id=exams[8].id),
+
+            Score(type_exam="15p", value=10, exam_id=exams[9].id),
+            Score(type_exam="15p", value=10, exam_id=exams[9].id),
+            Score(type_exam="1h", value=8, exam_id=exams[9].id),
+
+            Score(type_exam="15p", value=8, exam_id=exams[10].id),
+            Score(type_exam="15p", value=7, exam_id=exams[10].id),
+            Score(type_exam="1h", value=6, exam_id=exams[10].id),
+
+            Score(type_exam="15p", value=6, exam_id=exams[11].id),
+            Score(type_exam="15p", value=10, exam_id=exams[11].id),
+            Score(type_exam="1h", value=8, exam_id=exams[11].id),
+
+            Score(type_exam="15p", value=10, exam_id=exams[12].id),
+            Score(type_exam="15p", value=10, exam_id=exams[12].id),
+            Score(type_exam="1h", value=8, exam_id=exams[12].id),
+
+            Score(type_exam="15p", value=8, exam_id=exams[13].id),
+            Score(type_exam="15p", value=7, exam_id=exams[13].id),
+            Score(type_exam="1h", value=6, exam_id=exams[13].id),
+
+            Score(type_exam="15p", value=6, exam_id=exams[14].id),
+            Score(type_exam="15p", value=10, exam_id=exams[14].id),
+            Score(type_exam="1h", value=8, exam_id=exams[14].id),
+
+            Score(type_exam="15p", value=10, exam_id=exams[15].id),
+            Score(type_exam="15p", value=10, exam_id=exams[15].id),
+            Score(type_exam="1h", value=8, exam_id=exams[15].id),
+
+            Score(type_exam="15p", value=8, exam_id=exams[16].id),
+            Score(type_exam="15p", value=7, exam_id=exams[16].id),
+            Score(type_exam="1h", value=6, exam_id=exams[16].id),
+
+            Score(type_exam="15p", value=8, exam_id=exams[17].id),
+            Score(type_exam="15p", value=7, exam_id=exams[17].id),
+            Score(type_exam="1h", value=6, exam_id=exams[17].id),
+
+            Score(type_exam="15p", value=8, exam_id=exams[18].id),
+            Score(type_exam="15p", value=7, exam_id=exams[18].id),
+            Score(type_exam="1h", value=6, exam_id=exams[18].id),
+
+            Score(type_exam="15p", value=8, exam_id=exams[19].id),
+            Score(type_exam="15p", value=7, exam_id=exams[19].id),
+            Score(type_exam="1h", value=6, exam_id=exams[19].id),
+
+        ]
+        # for ex in scores:
+        #     db.session.add(ex)
+        # db.session.commit()

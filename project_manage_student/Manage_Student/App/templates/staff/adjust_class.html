@@ -35,10 +35,10 @@ Trang phân công giảng dạy
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form action="/staff/add_student" method="POST">
+                        <form action="/staff/adjust_class" method="POST">
                             <div class="form-group mb-4">
                                 <select class="form-select" aria-label="Default select example" id="grade_"
-                                        onchange="get_class_by_grade()" name="grade">
+                                         name="grade_id">
                                     <option value="" selected>Chọn khối lớp</option>
                                     <option value="10">Khối 10</option>
                                     <option value="11">Khối 11</option>
@@ -54,43 +54,43 @@ Trang phân công giảng dạy
         </div>
     </div>
 </div>
-<div class="row mt-3">
-    <div class="col-md-7">
-        <table class="table text-center table-bordered border-primary" id="list-student">
-            <thead>
-            <tr>
-                <th scope="col" class="border-box">STT</th>
-                <th scope="col">Họ và tên</th>
-                <th scope="col">Giới tính</th>
-                <th scope="col">action</th>
-            </tr>
-            <tr>
-                <th scope="col"></th>
-                <th scope="col">
-                    <form class="d-flex" role="search">
-                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                    </form>
-                </th>
-                <th scope="col">
-                    <select class="form-select" aria-label="Default select example">
-                        <option selected>Chọn</option>
-                        <option value="0">Nam</option>
-                        <option value="1">Nữ</option>
-                    </select>
-                </th>
-                <th scope="col">
-                    <input class="form-check-input mt-2 mb-2" type="checkbox" id="parent-check"
-                           onchange="check_all_adjust('parent')"/>
-                </th>
-            </tr>
-            </thead>
-            <tbody class="table-hover show-student">
-            <!--   Dữ liệu sẽ được đổ ra khi chọn grade và lớp -->
-            </tbody>
-        </table>
-    </div>
-    <div class="col-md-5">
-        <form action="/staff/adjust_class" method="POST">
+<form action="/staff/change_class" method="POST">
+    <div class="row mt-3">
+        <div class="col-md-7">
+            <table class="table text-center table-bordered border-primary" id="list-student">
+                <thead>
+                <tr>
+                    <th scope="col" class="border-box">STT</th>
+                    <th scope="col">Họ và tên</th>
+                    <th scope="col">Giới tính</th>
+                    <th scope="col">action</th>
+                </tr>
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col">
+                        <form class="d-flex" role="search">
+                            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                        </form>
+                    </th>
+                    <th scope="col">
+                        <select class="form-select" aria-label="Default select example">
+                            <option selected>Chọn</option>
+                            <option value="0">Nam</option>
+                            <option value="1">Nữ</option>
+                        </select>
+                    </th>
+                    <th scope="col">
+                        <input class="form-check-input mt-2 mb-2" type="checkbox" id="parent-check"
+                               onchange="check_all_adjust('parent')"/>
+                    </th>
+                </tr>
+                </thead>
+                <tbody class="table-hover show-student">
+                <!--   Dữ liệu sẽ được đổ ra khi chọn grade và lớp -->
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-5">
             <div>
                 <label for="class_none" class="form-label">Danh sách lớp trống</label>
                 <select class="form-select" aria-label="Default select example" id="class_none" name="class_id">
@@ -103,7 +103,6 @@ Trang phân công giảng dạy
                 </select>
             </div>
             <div class="mt-3">
-
                 <div class="row">
                     <div class="col-md-3 col-6">
                         <button type="submit" name="action" value="delete" class="btn btn-outline-danger form-control">
@@ -117,9 +116,9 @@ Trang phân công giảng dạy
                     </div>
                 </div>
             </div>
-        </form>
+        </div>
     </div>
-</div>
+</form>
 <script src="{{url_for('static',filename='js/assignment.js')}}"></script>
 <script src="{{url_for('static',filename='js/adjust_class.js')}}"></script>
 {% endblock %}

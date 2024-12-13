@@ -7,7 +7,10 @@ def get_list_class(grade=None):
         return query.filter(Class.grade.__eq__(grade)).all()
     return query.all()
 
+
 def get_list_class_less_quantity(quantity_student_max):
     return Class.query.filter(Class.quantity_student < quantity_student_max).all()
 
 
+def get_class_by_id(class_id):
+    return Class.query.filter(Class.id.__eq__(class_id)).first()

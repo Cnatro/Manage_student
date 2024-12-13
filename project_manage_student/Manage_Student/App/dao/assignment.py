@@ -5,7 +5,7 @@ from App import db
 
 def save_action(class_id):
     subject_ids = request.form.getlist('subject_id')
-
+    # print(subject_ids)
     list_data_form = [
         {
             'teacher_subject_id': request.form.get(f'teacher_subject_id-{sb_id}'),

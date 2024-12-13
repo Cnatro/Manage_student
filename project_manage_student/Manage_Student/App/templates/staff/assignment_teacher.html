@@ -6,11 +6,20 @@ Trang phân công giảng dạy
 
 {% block content %}
 <h1 class="text-center mt-3">PHÂN CÔNG GIẢNG DẠY</h1>
+{% if subjects %}
 <div class="row">
     <div class="col-md-3 col-6">
         <label for="learn_year">Năm học : </label>
-        <select class="form-select" aria-label="Default select example" id="learn_year">
-            <option value="">2024-2025</option>
+        <select class="form-select" aria-label="Default select example" id="learn_year"
+                onchange="value_of_semesters()">
+            <option value="">Chọn năm học</option>
+            {% if semesters %}
+            {% for s in semesters %}
+            <option value="{{s}}">{{s}}</option>
+            {% endfor %}
+            {% else %}
+            <option>Không có dữ liệu</option>
+            {% endif %}
         </select>
     </div>
     <div class="col-md-3 col-6">
@@ -18,6 +27,7 @@ Trang phân công giảng dạy
         <input type="text" class="form-control" id="level_learn" value="THPT" disabled/>
     </div>
 </div>
+{% endif %}
 <div class="row mt-4">
     <h3 class="text-info">Thông tin tìm kiếm :</h3>
     <form action="/staff/assignment_teacher" method="post">
@@ -49,9 +59,13 @@ Trang phân công giảng dạy
     </form>
 </div>
 <form action="/staff/assignment_teacher/{{grade_value}}/{{class_id}}" method="POST">
+    {% if class_name %}
+    <h3 class="mb-4" id="title-assignment">Phân công giảng dạy cho lớp {{class_name}}</h3>
+    {% endif %}
     <div class="row">
         <div class="col-md-3 col-6">
-            <button type="submit" name="action" value="delete" class="btn btn-outline-danger form-control">Xóa tất cả</button>
+            <button type="submit" name="action" value="delete" class="btn btn-outline-danger form-control">Xóa tất cả
+            </button>
         </div>
         <div class="col-md-3 col-6">
             <button type="submit" name="action" value="save" class="btn btn-outline-secondary form-control">Lưu</button>
@@ -81,20 +95,20 @@ Trang phân công giảng dạy
                 <select class="form-select" aria-label="Default select example" name="teacher_subject_id-{{sb.id}}">
                     <option selected>Chọn giáo viên</option>
                     {% for teacher in get_teachers(sb.id) %}
-                    <option value="{{teacher.teacher_id}}">{{teacher.teacher.profile.name}}</option>
+                    <option value="{{teacher.id}}">{{teacher.teacher.profile.name}}</option>
                     {% endfor %}
                 </select>
             </td>
             <td class="col-md-2">
-                <input class="form-check-input mt-2 mb-2" type="checkbox" id="semesters-{{sb.id}}"
-                       onchange="check_semester({{sb.id}},'total')"  value="both" name="semester-{{sb.id}}"/>
+                <input class="form-check-input mt-2 mb-2 semester-both" type="checkbox" id="semesters-{{sb.id}}"
+                       onchange="check_semester({{sb.id}},'total')" value="both" name="semester-{{sb.id}}"/>
             </td>
             <td class="col-md-1">
-                <input class="form-check-input mt-2 mb-2" type="checkbox" id="semester1-{{sb.id}}"
+                <input class="form-check-input mt-2 mb-2 semester1" type="checkbox" id="semester1-{{sb.id}}"
                        onchange="check_semester({{sb.id}},'sub-total')" value="1" name="semester-{{sb.id}}"/>
             </td>
             <td class="col-md-1">
-                <input class="form-check-input mt-2 mb-2" type="checkbox" id="semester2-{{sb.id}}"
+                <input class="form-check-input mt-2 mb-2 semester2" type="checkbox" id="semester2-{{sb.id}}"
                        onchange="check_semester({{sb.id}},'sub-total')" value="2" name="semester-{{sb.id}}"/>
             </td>
         </tr>

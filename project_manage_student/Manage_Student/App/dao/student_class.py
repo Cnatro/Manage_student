@@ -1,8 +1,8 @@
 import random
-
+from sqlalchemy import delete
 from sqlalchemy import func
 
-from App.model import Student, Class, Grade, StudentClass, User, UserRole
+from App.model import Student, Class, Grade, StudentClass, User, UserRole, Score, Exam, TeacherPlan
 from App import db
 
 
@@ -53,3 +53,56 @@ def count_student_of_class():
                                       .filter(StudentClass.class_id.__eq__(c.id)).scalar())
         db.session.add(c)
     db.session.commit()
+
+
+def change_student_to_class(class_id, student_ids):
+    student_ids = [int(x) for x in student_ids]
+
+    students = StudentClass.query.filter(StudentClass.student_id.in_(student_ids)).all()
+    for st in students:
+        st.class_id = class_id
+        db.session.add(st)
+    db.session.commit()
+    count_student_of_class()
+
+
+def update_class(grade,old_students):
+    count = 1
+    grade = grade + 1
+
+    # lấy ds class_id của hs cũ
+    classes_update = {ex.teacher_plans.classes.id for ex in old_students}
+    #lấy class
+    class_old = Class.query.filter(Class.id.in_(classes_update)).all()
+    # update
+    for c in class_old:
+        c.name = f'{grade}A{count}'
+        c.grade = Grade(grade)
+
+        count = count + 1
+        db.session.add(c)
+
+    db.session.commit()
+
+
+def reset_info_students(old_students):
+    student_ids = [ ex.student_id for ex in old_students ]
+    exam_ids = [ ex.id for ex in old_students ]
+    class_ids = { ex.teacher_plans.classes.id for ex in old_students }
+
+    print(student_ids)
+    print(exam_ids)
+    print(class_ids)
+    query_score = delete(Score).where(Score.exam_id.in_(exam_ids))
+    query_exam = delete(Exam).where(Exam.student_id.in_(student_ids))
+    query_teacher_plan = delete(TeacherPlan).where(TeacherPlan.class_id.in_(class_ids))
+
+    db.session.execute(query_score)
+    db.session.execute(query_exam)
+    db.session.execute(query_teacher_plan)
+
+    # print("Deleted rows in Score:", result_score.rowcount)
+    # print("Deleted rows in Exam:", result_exam.rowcount)
+    # print("Deleted rows in TeacherPlan:", result_teacher_plan.rowcount)
+    db.session.commit()
+
