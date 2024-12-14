@@ -26,7 +26,7 @@ function get_students_by_class(columns,type=false){
                             row += `<td><input class="form-check-input mt-2 mb-2 child-check" type="checkbox"
                              name='student_id' value='${student.student_id}' onchange="check_all_adjust()"/></td>`
                         }else{
-                             row += `<td>&times;</td>`;
+                             row += `<td><a class="text-danger" href=""><i class="fa-regular fa-trash-can"></i></a></td>`;
                         }
 
                         row += `</tr>`;
@@ -37,14 +37,15 @@ function get_students_by_class(columns,type=false){
 
 function search_name_student(columns,type=false){
     let value_search = document.getElementById('search').value;
-
+    const selectedValue = document.getElementById("class_").value;
     fetch('/api/student_class/search',{
         method:'post',
         headers:{
            'Content-Type' : 'application/json'
         },
         body:JSON.stringify({
-            'value_search':value_search
+            'value_search':value_search,
+            'class_id':selectedValue
         })
     }).then( res => res.json())
       .then( data => {
@@ -64,7 +65,7 @@ function search_name_student(columns,type=false){
                             row += `<td><input class="form-check-input mt-2 mb-2 child-check" type="checkbox"
                              name='student_id' value='${student.student_id}' onchange="check_all_adjust()"/></td>`
                         }else{
-                             row += `<td>&times;</td>`;
+                             row += `<td><a class="text-danger" href=""><i class="fa-regular fa-trash-can"></i></a></td>`;
                         }
 
                         row += `</tr>`;

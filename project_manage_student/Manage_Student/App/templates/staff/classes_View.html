@@ -23,7 +23,7 @@ Trang quản lí danh sách lớp
                 {% for c in class_ %}
                 <tr>
                     <th scope="row">{{ loop.index }}</th>
-                    <td>{{ c.name }}</td>
+                    <td><a class="text-decoration-none" href="/staff/classes_View/info/{{c.id}}">{{ c.name }}</a></td>
                     <td>{{ c.user.profile.name }}</td>
                     <td>{{ c.quantity_student }}</td>
                     <td><input class="form-check-input p-2 action-checkbox" type="checkbox" value="{{c.id}}"

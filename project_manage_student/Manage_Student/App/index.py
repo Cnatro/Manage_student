@@ -126,7 +126,7 @@ def add_student():
 # quản lí danh sách lớp
 @app.route('/staff/classes_View',methods=['GET','POST'])
 @role_only([UserRole.STAFF])
-def create_class():
+def class_view():
     if request.method == "POST":
         class_id = request.form.get('class_id')
         student_ids = request.form.getlist('student_id')
@@ -138,6 +138,17 @@ def create_class():
                            class_=class_,
                            students_no_class=students_no_class,
                            user_page='staff')
+
+
+@app.route('/staff/classes_View/info/<int:class_id>')
+@role_only([UserRole.STAFF])
+def class_detail(class_id):
+    class_ = classes.get_class_by_id(class_id=class_id)
+    students = student_class.get_list_student(class_id=class_id)
+    return render_template('staff/class_info.html',
+                           user_page='staff',
+                           class_=class_,
+                           students=students)
 
 
 # chuyen lớp cho hc sinh

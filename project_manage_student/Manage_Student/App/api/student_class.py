@@ -40,7 +40,8 @@ def get_students_by_class():
 @app.route('/api/student_class/search', methods=['post'])
 def get_student_search():
     value = request.json.get('value_search')
-    students = student_class.get_list_student(value_name=value)
+    class_id = request.json.get('class_id')
+    students = student_class.get_list_student(class_id=class_id,value_name=value)
     students_json = [
         {
             'id': st.id,
