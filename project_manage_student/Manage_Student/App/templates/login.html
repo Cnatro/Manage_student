@@ -24,29 +24,22 @@
             <div class="modal-content">
                 <div class="modal-body shadow-lg">
                     <h2 class="text-center mt-5">ĐĂNG NHẬP</h2>
-                    <!--                    {% for field, errors in form.errors.items() %}-->
-                    <!--                    {% for error in errors %}-->
-                    <!--                    <div style="color: red;">{{ field }}: {{ error }}</div>-->
-                    <!--                    {% endfor %}-->
-                    <!--                    {% endfor %}-->
                     <form action="{{ url_for('login_process') }}" method="post" class="pt-3 ps-4 pe-4 pb-5 mb-5">
                         <!-- Thêm  CSRF token -->
-                        {{ form.csrf_token }}
+                        {{ form_login.csrf_token }}
                         <div class="mb-3 mt-3">
-                            <label for="username" class="form-label">Tên đăng nhập:</label>
-                            <input type="text" class="form-control" id="username" placeholder="Nhập tên đăng nhập"
-                                   name="username">
-                            {% for error in form.username.errors %}
+                            {{ form_login.username.label(class_='form-label') }}
+                            {{ form_login.username }}
+                            {% for error in form_login.username.errors %}
                             <span class="d-block alert alert-danger">{{ error }}</span>
                             {% endfor %}
                         </div>
                         <div class="mb-3 position-relative">
-                            <label for="password" class="form-label">Mật Khẩu:</label>
-                            <input type="password" class="form-control" id="password" placeholder="Nhập mật khẩu"
-                                   name="password"/>
+                            {{ form_login.password.label(class_='form-label') }}
+                            {{ form_login.password }}
                             <i class="toggle-show-password fa-regular fa-eye-slash position-absolute icon-search"></i>
 
-                            {% for error in form.password.errors %}
+                            {% for error in form_login.password.errors %}
                             <span class="d-block alert alert-danger">{{ error }}</span>
                             {% endfor %}
                         </div>
@@ -58,7 +51,7 @@
                         </div>
                         <button type="submit" class="btn btn-primary form-control" name="btn-login">Đăng nhập</button>
                         {% if mse %}
-                          <span class="d-block alert alert-danger">{{ mse }}</span>
+                        <span class="d-block alert alert-danger">{{ mse }}</span>
                         {% endif %}
                     </form>
                 </div>

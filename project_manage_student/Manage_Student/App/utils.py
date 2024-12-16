@@ -1,6 +1,7 @@
 from flask import Flask, send_file
 import pandas as pd
 import os
+from App import form
 
 
 def export_excel(data,year_learn):
@@ -27,7 +28,3 @@ def export_excel(data,year_learn):
         mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
-
-# def unique_data(data):
-#     unique_dt = { dt for dt in data }
-#     return unique_dt

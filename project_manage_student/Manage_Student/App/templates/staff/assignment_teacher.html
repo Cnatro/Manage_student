@@ -9,28 +9,16 @@ Trang phân công giảng dạy
 {% if subjects %}
 <div class="row">
     <div class="col-md-3 col-6">
-        <label for="learn_year">Năm học : </label>
-        <select class="form-select" aria-label="Default select example" id="learn_year"
-                onchange="value_of_semesters()">
-            <option value="">Chọn năm học</option>
-            {% if semesters %}
-            {% for s in semesters %}
-            <option value="{{s}}">{{s}}</option>
-            {% endfor %}
-            {% else %}
-            <option>Không có dữ liệu</option>
-            {% endif %}
-        </select>
-    </div>
-    <div class="col-md-3 col-6">
         <label for="level_learn">Cấp học :</label>
         <input type="text" class="form-control" id="level_learn" value="THPT" disabled/>
     </div>
+    <div class="col-md-1 ms-auto"><a class="btn btn-danger mt-4 d-block" href="{{ url_for('assignment_teach') }}">&times;</a>
+    </div>
 </div>
-{% endif %}
+{% else %}
 <div class="row mt-4">
     <h3 class="text-info">Thông tin tìm kiếm :</h3>
-    <form action="/staff/assignment_teacher" method="post">
+    <form action="/staff/assignment_teacher" method="post" id="search-assignment">
         <div class="row">
             <div class="col-md-3 col-6">
                 <label for="grade">Khối : </label>
@@ -58,17 +46,39 @@ Trang phân công giảng dạy
         </div>
     </form>
 </div>
-<form action="/staff/assignment_teacher/{{grade_value}}/{{class_id}}" method="POST">
+{% endif %}
+<form action="/staff/assignment_teacher/{{grade_value}}/{{class_id}}" method="POST" id="form-assignment">
     {% if class_name %}
-    <h3 class="mb-4" id="title-assignment">Phân công giảng dạy cho lớp {{class_name}}</h3>
+    <div class="row">
+        <div class="col-md-9">
+            <h3 class="mb-4" id="title-assignment">Phân công giảng dạy cho lớp {{class_name}}</h3>
+        </div>
+
+        <div class="col-md-3 col-6">
+            <label for="learn_year">Năm học : </label>
+            <select class="form-select" aria-label="Default select example" id="learn_year"
+                    onchange="value_of_semesters()">
+                <option selected>Chọn năm học</option>
+                {% if semesters %}
+                {% for s in semesters %}
+                <option value="{{s}}">{{s}}</option>
+                {% endfor %}
+                {% else %}
+                <option>Không có dữ liệu</option>
+                {% endif %}
+            </select>
+        </div>
+    </div>
     {% endif %}
+
+    {% if subjects %}
     <div class="row">
         <div class="col-md-3 col-6">
             <button type="submit" name="action" value="delete" class="btn btn-outline-danger form-control">Xóa tất cả
             </button>
         </div>
         <div class="col-md-3 col-6">
-            <button type="submit" name="action" value="save" class="btn btn-outline-secondary form-control">Lưu</button>
+            <button type="submit" name="action" value="save" id="save_plan" class="btn btn-outline-secondary form-control">Lưu</button>
         </div>
     </div>
     <table class="table text-center table-bordered border-primary mt-2" id="teacher_assignment`">
@@ -83,17 +93,16 @@ Trang phân công giảng dạy
         </tr>
         </thead>
         <tbody class="table-hover show-student">
-        {% if subjects %}
         {% for sb in subjects %}
         <tr class="row">
             <th class=" col-md-1">{{ loop.index }}</th>
             <td class="col-md-2">
-                <input class="text-center form-control" type="hidden" name="subject_id" value="{{sb.id}}"/>
+                <input class="text-center form-control subjects" type="hidden"  name="subject_id" value="{{sb.id}}"/>
                 <input class="text-center form-control" type="text" id="" value="{{sb.name}}" disabled/>
             </td>
             <td class="col-md-5">
                 <select class="form-select" aria-label="Default select example" name="teacher_subject_id-{{sb.id}}">
-                    <option selected>Chọn giáo viên</option>
+                    <option value="" selected>Chọn giáo viên</option>
                     {% for teacher in get_teachers(sb.id) %}
                     <option value="{{teacher.id}}">{{teacher.teacher.profile.name}}</option>
                     {% endfor %}
@@ -101,7 +110,7 @@ Trang phân công giảng dạy
             </td>
             <td class="col-md-2">
                 <input class="form-check-input mt-2 mb-2 semester-both" type="checkbox" id="semesters-{{sb.id}}"
-                       onchange="check_semester({{sb.id}},'total')" value="both" name="semester-{{sb.id}}"/>
+                       onchange="check_semester({{sb.id}},'total')" value="both" name="semester-both-{{sb.id}}"/>
             </td>
             <td class="col-md-1">
                 <input class="form-check-input mt-2 mb-2 semester1" type="checkbox" id="semester1-{{sb.id}}"
@@ -113,9 +122,9 @@ Trang phân công giảng dạy
             </td>
         </tr>
         {% endfor %}
-        {% endif %}
         </tbody>
     </table>
+    {% endif %}
 </form>
 <script src="{{url_for('static',filename='js/assignment.js')}}"></script>
 {% endblock %}

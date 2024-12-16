@@ -33,40 +33,63 @@ Trang quản lí học sinh
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form action="/staff/add_student" method="POST">
+                        <form action="{{ url_for('manage_student') }}" method="POST">
+                            <!-- Thêm  CSRF token -->
+                            {{ form_add_student.csrf_token }}
                             <div class="form-group mb-3 row">
                                 <div class="col-8">
-                                    <label for="name" class="form-label">Họ và tên</label>
-                                    <input type="text" class="form-control" id="name" name="name"
-                                           placeholder="Nhập họ và tên"/>
+                                    {{ form_add_student.name.label(class_="form-label") }}
+                                    {{ form_add_student.name }}
+
+                                    {% for error in form_add_student.name.errors %}
+                                    <span class="form-text text-danger">{{ error }}</span>
+                                    {% endfor %}
                                 </div>
                                 <div class="col-4">
-                                    <label for="gender" class="form-label">Giới tính</label>
-                                    <select class="form-select" id="gender" name="gender">
-                                        <option selected>Chọn</option>
-                                        <option value="0">Nam</option>
-                                        <option value="1">Nữ</option>
-                                    </select>
+                                    {{ form_add_student.gender.label(class_="form-label") }}
+                                    {{ form_add_student.gender }}
+
+                                    {% for error in form_add_student.gender.errors %}
+                                    <span class="form-text text-danger">{{ error }}</span>
+                                    {% endfor %}
                                 </div>
                             </div>
                             <div class="form-group mb-3 row">
-                                <label for="birthday" class="form-label">Ngày sinh</label>
-                                <input type="date" name="birthday" id="birthday" class="form-control"/>
+                                <div class="col-md-12">
+                                    {{ form_add_student.birthday.label(class_="form-label") }}
+                                    {{ form_add_student.birthday }}
+
+                                    {% for error in form_add_student.birthday.errors %}
+                                    <span class="form-text text-danger">{{ error }}</span>
+                                    {% endfor %}
+                                </div>
                             </div>
                             <div class="form-group mb-3">
-                                <label for="number_phone" class="form-label">Số điện thoại</label>
-                                <input type="text" name="number_phone" id="number_phone" class="form-control"/>
+                                {{ form_add_student.number_phone.label(class_="form-label") }}
+                                {{ form_add_student.number_phone }}
+
+                                {% for error in form_add_student.number_phone.errors %}
+                                <span class="form-text text-danger">{{ error }}</span>
+                                {% endfor %}
                             </div>
                             <div class="form-group mb-3">
-                                <label for="email" class="form-label">Email</label>
-                                <input type="email" name="email" id="email" class="form-control"/>
+                                {{ form_add_student.email.label(class_="form-label") }}
+                                {{ form_add_student.email }}
+
+                                {% for error in form_add_student.email.errors %}
+                                <span class="form-text text-danger">{{ error }}</span>
+                                {% endfor %}
                             </div>
                             <div class="form-group mb-3">
-                                <label for="address" class="form-label">Địa chỉ</label>
-                                <textarea class="form-control" id="address" name="address" rows="3"></textarea>
+                                {{ form_add_student.address.label(class_="form-label") }}
+                                {{ form_add_student.address }}
+
+                                {% for error in form_add_student.address.errors %}
+                                <span class="form-text text-danger">{{ error }}</span>
+                                {% endfor %}
                             </div>
                             <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Quay lại</button>
-                            <button type="submit" class="btn btn-primary" name="btn_add_student">Ghi nhận</button>
+                            {{ form_add_student.btn_add_student }}
                         </form>
                     </div>
                 </div>
@@ -124,7 +147,8 @@ Trang quản lí học sinh
         <th scope="col">
             <form class="d-flex" role="search">
                 <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"
-                       id="search" oninput="search_name_student(['student_name','gender','birthday','total_core','status_payment','class_name'])">
+                       id="search"
+                       oninput="search_name_student(['student_name','gender','birthday','total_core','status_payment','class_name'])">
             </form>
         </th>
         <th scope="col"></th>
@@ -140,17 +164,13 @@ Trang quản lí học sinh
     <tr>
         <th scope="row">{{ loop.index }}</th>
         <td>{{ st.students.profile.name }}</td>
-        <td>{{ st.students.profile.gender }}</td>
-        <td>{% if st.students.profile.birthday %}
-                {{ st.students.profile.birthday.strftime('%d-%m-%Y') }}
-            {% else %}
-            Chưa cập nhật
-            {% endif %}
-        </td>
+        <td>{{ 'Nam' if st.students.profile.gender == 0 else 'Nữ' if st.students.profile.gender == 1 else 'None' }}</td>
+        <td>{{ st.students.profile.birthday.strftime('%d-%m-%Y') if st.students.profile.birthday else 'None' }} </td>
         <td>Điểm</td>
-        <td>{{ st.students.status_payment }}</td>
+        <td>{{ 'Đã thanh toán' if st.students.status_payment == 1 else 'Chưa thanh toán'  }}</td>
         <td>{{st.class_.name}}</td>
-        <td><a class="text-danger" href=""><i class="fa-regular fa-trash-can"></i></a></td>
+        <td><a class="text-danger delete-student" href="/staff/manage_student/delete/{{st.student_id}}"><i
+                class="fa-regular fa-trash-can"></i></a></td>
     </tr>
     {% endfor %}
     </tbody>
@@ -158,4 +178,11 @@ Trang quản lí học sinh
 {% else %}
 <div class="alert alert-danger text-center">Không có dữ liệu</div>
 {% endif %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        {% if show_modal %}
+            $('#add_student').modal('show'); // Sử dụng ID modal của bạn
+        {% endif %}
+    });
+</script>
 {% endblock %}

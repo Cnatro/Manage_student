@@ -7,7 +7,7 @@ from App.dao import student_class, student
 def get_students_by_class():
     class_id = request.json.get('class_id')
     # print(class_id)
-    students_array = student_class.get_list_student(class_id)
+    students_array = student_class.get_list_student(class_id=class_id)
 
     students_json = {}
     class_info = {}
@@ -21,13 +21,13 @@ def get_students_by_class():
                 'staff_id': st.students.staff_id,
                 'student_name': st.students.profile.name,
                 'birthday': st.students.profile.birthday.strftime(
-                    '%d-%m-%Y') if st.students.profile.birthday else 'Chưa cập nhật',
-                'gender': st.students.profile.gender,
+                    '%d-%m-%Y') if st.students.profile.birthday else 'None',
+                'gender': 'Nam' if st.students.profile.gender == 0 else 'Nữ' if st.students.profile.gender == 1 else 'None',
                 'address': st.students.profile.address,
                 'email': st.students.profile.email,
                 'number_phone': st.students.profile.number_phone,
-                'status_payment': st.students.status_payment,
-                'class_name': students_array[0].class_.name,
+                'status_payment': 'Đã thanh toán' if st.students.status_payment == 1 else 'Chưa thanh toán',
+                'class_name': st.class_.name,
             }
         class_info = {
             'quantity_student': students_array[0].class_.quantity_student,
@@ -41,7 +41,8 @@ def get_students_by_class():
 def get_student_search():
     value = request.json.get('value_search')
     class_id = request.json.get('class_id')
-    students = student_class.get_list_student(class_id=class_id,value_name=value)
+    students = student_class.get_list_student(class_id=class_id, value_name=value)
+    print()
     students_json = [
         {
             'id': st.id,
@@ -49,14 +50,13 @@ def get_student_search():
             'class_id': st.class_id,
             'staff_id': st.students.staff_id,
             'student_name': st.students.profile.name,
-            'birthday': st.students.profile.birthday.strftime(
-                '%d-%m-%Y') if st.students.profile.birthday else 'Chưa cập nhật',
-            'gender': st.students.profile.gender,
+            'birthday': st.students.profile.birthday.strftime('%d-%m-%Y') if st.students.profile.birthday else 'None',
+            'gender': 'Nam' if st.students.profile.gender == 0 else 'Nữ' if st.students.profile.gender == 1 else 'None',
             'address': st.students.profile.address,
             'email': st.students.profile.email,
             'number_phone': st.students.profile.number_phone,
-            'status_payment': st.students.status_payment,
-            'class_name': students[0].class_.name,
+            'status_payment': 'Đã thanh toán' if st.students.status_payment == 1 else 'Chưa thanh toán',
+            'class_name': st.class_.name,
         } for st in students
     ]
 

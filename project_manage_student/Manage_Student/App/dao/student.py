@@ -1,7 +1,9 @@
 from wtforms.validators import email
 
 from App import db
-from App.model import Student, Profile, StudentClass
+from sqlalchemy import delete
+from App.model import Student, Profile, StudentClass, Score,Exam
+from App.dao import exam,classes
 
 
 def add_list_student(list_data, staff_id):
@@ -29,4 +31,24 @@ def create_student(name, birthday, gender, address ,email, number_phone,staff_id
     db.session.add(st)
     db.session.commit()
 
+
+def del_student(student_id):
+    exam_ = exam.get_exam_by_student_id(student_id=student_id)
+    if exam_:
+        query_del_score = delete(Score).where(Score.exam_id.__eq__(exam_.id))
+        query_del_exam = delete(Exam).where(Exam.student_id.__eq__(student_id))
+
+        db.session.execute(query_del_score)
+        db.session.execute(query_del_exam)
+
+    query_del_student_class = delete(StudentClass).where(StudentClass.student_id.__eq__(student_id))
+    query_del_student = delete(Student).where(Student.id.__eq__(student_id))
+    query_del_profile = delete(Profile).where(Profile.id.__eq__(student_id))
+
+    db.session.execute(query_del_student_class)
+    db.session.execute(query_del_student)
+    db.session.execute(query_del_profile)
+
+    db.session.commit()
+    classes.count_student_of_class()
 

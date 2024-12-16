@@ -5,7 +5,7 @@ Trang quản lí danh sách lớp
 {% endblock %}
 
 {% block content %}
-<form action="/staff/classes_View" method="post">
+<form action="/staff/classes_View" method="post" id="form_save_student">
     <div class="row pb-3 pt-3">
         <div class="col-md-6">
             {% if class_ %}
@@ -39,7 +39,7 @@ Trang quản lí danh sách lớp
         </div>
         <div class="col-md-6">
             <h3>Danh sách học sinh chưa có lớp</h3>
-            {% if class_ %}
+            {% if students_no_class %}
             <table class="table text-center table-bordered border-primary">
                 <thead>
                 <tr>
@@ -50,17 +50,15 @@ Trang quản lí danh sách lớp
                 </tr>
                 </thead>
                 <tbody class="table-hover show-student">
-                {% if students_no_class %}
                 {% for st in students_no_class %}
                 <tr>
                     <th scope="row">{{ loop.index }}</th>
                     <td>{{ st.profile.name }}</td>
-                    <td>{{ st.profile.gender }}</td>
+                    <td>{{ 'Nam' if st.profile.gender == 0 else 'Nữ' if st.profile.gender == 1 else 'None' }}</td>
                     <td><input class="form-check-input p-2" type="checkbox" value="{{st.id}}" name="student_id"/>
                     </td>
                 </tr>
                 {% endfor %}
-                {% endif %}
                 </tbody>
             </table>
             {% else %}
@@ -68,7 +66,9 @@ Trang quản lí danh sách lớp
             {% endif %}
         </div>
     </div>
+    {% if students_no_class %}
     <button class="btn btn-outline-primary" type="submit">Lưu</button>
+    {% endif %}
 </form>
 <script>
     window.onload = function(){

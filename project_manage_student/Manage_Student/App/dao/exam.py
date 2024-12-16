@@ -32,3 +32,6 @@ def get_info_students_for_excel(old_students):
             for st in old_students
         ]
     return data
+
+def get_exam_by_student_id(student_id):
+    return Exam.query.filter(Exam.student_id.__eq__(student_id)).first()

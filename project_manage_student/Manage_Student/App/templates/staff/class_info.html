@@ -32,13 +32,8 @@ Trang quản lí danh sách lớp
     <tr>
         <th scope="row">{{ loop.index }}</th>
         <td>{{ st.students.profile.name }}</td>
-        <td>{{ st.students.profile.gender }}</td>
-        <td>{% if st.students.profile.birthday %}
-            {{ st.students.profile.birthday.strftime('%d-%m-%Y') }}
-            {% else %}
-            Chưa cập nhật
-            {% endif %}
-        </td>
+        <td>{{ 'Nam' if st.students.profile.gender == 0 else 'Nữ' if st.students.profile.gender == 1 else 'None' }}</td>
+        <td>{{ st.students.profile.birthday.strftime('%d-%m-%Y') if st.students.profile.birthday else 'None' }}</td>
         <td>{{ st.students.profile.address }}</td>
     </tr>
     {% endfor %}

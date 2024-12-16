@@ -1,9 +1,9 @@
 import random
 from sqlalchemy import delete
-from sqlalchemy import func
 
 from App.model import Student, Class, Grade, StudentClass, User, UserRole, Score, Exam, TeacherPlan, Profile
 from App import db
+from App.dao import classes
 
 
 def auto_create_class(quantity_student):
@@ -31,7 +31,7 @@ def auto_create_class(quantity_student):
         db.session.add(student_class)
     db.session.commit()
     # cập nhật số lượng họp sinh trong lớp
-    count_student_of_class()
+    classes.count_student_of_class()
 
 
 def get_list_student(class_id=None, value_name=None):
@@ -57,15 +57,6 @@ def load_students():
     return StudentClass.query.all()
 
 
-def count_student_of_class():
-    classes = Class.query.all()
-    for c in classes:
-        c.quantity_student = (db.session.query(func.count(StudentClass.class_id))
-                              .filter(StudentClass.class_id.__eq__(c.id)).scalar())
-        db.session.add(c)
-    db.session.commit()
-
-
 def change_student_to_class(class_id, student_ids):
     student_ids = [int(x) for x in student_ids]
 
@@ -74,7 +65,7 @@ def change_student_to_class(class_id, student_ids):
         st.class_id = class_id
         db.session.add(st)
     db.session.commit()
-    count_student_of_class()
+    classes.count_student_of_class()
 
 
 def update_class(grade, old_students):
@@ -120,4 +111,4 @@ def add_student_class(student_ids, class_id):
         st = StudentClass(student_id=id, class_id=class_id)
         db.session.add(st)
     db.session.commit()
-    count_student_of_class()
+    classes.count_student_of_class()

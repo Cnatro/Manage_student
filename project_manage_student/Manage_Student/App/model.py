@@ -306,12 +306,12 @@ if __name__ == '__main__':
             Semester(name=SemesterName.HK2, year="2022-2023"),
             Semester(name=SemesterName.HK1, year="2023-2024"),
             Semester(name=SemesterName.HK2, year="2023-2024"),
-            Semester(name=SemesterName.HK2, year="2024-2025"),
+            Semester(name=SemesterName.HK1, year="2024-2025"),
             Semester(name=SemesterName.HK2, year="2024-2025"),
         ]
-        for s in semesters:
-            db.session.add(s)
-        db.session.commit()
+        # for s in semesters:
+        #     db.session.add(s)
+        # db.session.commit()
 
         regulations = [
             Regulation(type="Student", regulation_name="Số tuổi của học sinh", min=15, max=18, admin_id=admin.id),

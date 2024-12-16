@@ -1,21 +1,19 @@
 import pandas
-from flask import render_template, url_for,redirect
+from flask import render_template, url_for, redirect
 import random
 
-from App import app, login, ALLOW_EXTENSIONS,utils
+from App import app, login, ALLOW_EXTENSIONS, utils
 from flask_login import login_user, logout_user, current_user, login_required
 
 from App.model import UserRole
 from App.decorators import role_only
 
-from App.form import *
-from App.dao import auth, student, teacher_subject,exam,semester
+from App import form
+from App.dao import auth, student, teacher_subject, exam, semester
 from App.dao.assignment import handle_action
 
 from App.api.student_class import *
 from App.api.teacher_assignment import *
-
-
 
 
 # user login
@@ -37,17 +35,17 @@ def index():
 @app.route("/login", methods=['GET', 'POST'])
 def login_process():
     mse = ""
-    form = loginForm()
-    if request.method == "POST" and form.validate_on_submit():
-        username = form.username.data
-        password = form.password.data
+    form_login = form.loginForm()
+    if request.method == "POST" and form_login.validate_on_submit():
+        username = form_login.username.data
+        password = form_login.password.data
         user_login = auth.auth_user(username=username, password=password)
         if user_login:
             login_user(user_login)
             user_page = user_login.user_role
-            return redirect(url_for('home', user_page=user_page))
+            return redirect(url_for('index', user_page=user_page))
         mse = "Tên đăng nhập hoặc mật khẩu không chính xác"
-    return render_template('login.html', form=form, mse=mse)
+    return render_template('login.html', form_login=form_login, mse=mse)
 
 
 @app.route("/logout")
@@ -67,15 +65,26 @@ def home():
 
 # staff
 # quản lí học sinh
-@app.route('/staff/manage_student')
+@app.route('/staff/manage_student', methods=['GET', 'POST'])
 @role_only([UserRole.STAFF])
 def manage_student():
+    form_add_student = form.add_student()
+    show_modal = False
+
+    if request.method == "POST":
+        if form_add_student.validate_on_submit():
+            data = add_student(form_add_student=form_add_student,staff_id=current_user.id)
+            student.create_student(**data)
+            return redirect(url_for('manage_student'))
+        else:
+            show_modal = True  # show lại modal khi có lỗi
     students = student_class.load_students()
     class_ = classes.get_list_class()
     return render_template('staff/manage_student.html',
+                           form_add_student=form_add_student,
                            students=students,
                            class_=class_,
-                           user_page='staff')
+                           user_page='staff', show_modal=show_modal)
 
 
 def allowed_file(filename):
@@ -99,39 +108,40 @@ def upload_by_excel():
             # thêm ds hs vào database
             student.add_list_student(list_data=data, staff_id=current_user.id)
             # phân lớp
-            quantity_student_less = random.randint(app.config['QUANTITY_STUDENT'] - 5,app.config['QUANTITY_STUDENT'])
+            quantity_student_less = random.randint(app.config['QUANTITY_STUDENT'] - 5, app.config['QUANTITY_STUDENT'])
             student_class.auto_create_class(quantity_student_less)
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
         return redirect(url_for('manage_student'))
-
     return "Thêm dữ liệu không thành công"
 
 
-@app.route('/staff/add_student', methods=['GET', 'POST'])
-@role_only([UserRole.STAFF])
-def add_student():
-    if request.method == "POST":
-        data = request.form.copy()
-        del data['btn_add_student']
+def add_student(form_add_student, staff_id):
+    data = form_add_student.data
+    del data['btn_add_student']
+    del data['csrf_token']
 
-        data['staff_id'] = current_user.id
-        data['gender'] = int(data['gender'])
-        student.create_student(**data)
-        return redirect(url_for('manage_student'))
-    return 'Thêm dữ liệu không thành công'
+    data['staff_id'] = staff_id
+    data['gender'] = int(data['gender'])
+    return data
+
+
+@app.route('/staff/manage_student/delete/<int:student_id>')
+def delete_student(student_id):
+    student.del_student(student_id=student_id)
+    return redirect(url_for('manage_student'))
 
 
 # quản lí danh sách lớp
-@app.route('/staff/classes_View',methods=['GET','POST'])
+@app.route('/staff/classes_View', methods=['GET', 'POST'])
 @role_only([UserRole.STAFF])
 def class_view():
     if request.method == "POST":
         class_id = request.form.get('class_id')
         student_ids = request.form.getlist('student_id')
         student_class.add_student_class(student_ids=student_ids, class_id=class_id)
-        
+
     class_ = classes.get_list_class()
     students_no_class = student_class.get_list_student_no_class()
     return render_template('staff/classes_View.html',
@@ -152,7 +162,7 @@ def class_detail(class_id):
 
 
 # chuyen lớp cho hc sinh
-@app.route('/staff/change_class',methods=['GET','POST'])
+@app.route('/staff/change_class', methods=['GET', 'POST'])
 @role_only([UserRole.STAFF])
 def change_class():
     classes_none = classes.get_list_class_less_quantity(app.config['QUANTITY_STUDENT'])
@@ -166,12 +176,12 @@ def change_class():
 
 
 # dieu chinh cho hc sinh len lop
-@app.route('/staff/adjust_class',methods=['GET','POST'])
+@app.route('/staff/adjust_class', methods=['GET', 'POST'])
 @role_only([UserRole.STAFF])
 def adjust_class():
     if request.method == "POST":
         grade_id = int(request.form.get('grade_id'))
-        if grade_id:
+        if grade_id :
             # lấy thông tin hs cũ và lưu vào file excel
             info_students_old_grade = exam.get_info_old_students(grade_=Grade(grade_id))
             if info_students_old_grade:
@@ -191,14 +201,13 @@ def adjust_class():
 @role_only([UserRole.STAFF])
 def assignment_teach():
     semesters = semester.get_all_semester()
-    # [ print(s.year) for s in semesters ]
-    # print(unique_semester(semesters))
     if request.method == 'POST':
         grade = int(request.form.get('grade'))
         class_ = int(request.form.get('class_'))
         return redirect(url_for('teacher_subject_assignment',
                                 grade_value=grade,
                                 class_id=class_))
+
     return render_template('staff/assignment_teacher.html', user_page='staff',
                            semesters=semester.unique_semester(semesters))
 
@@ -210,6 +219,7 @@ def teacher_subject_assignment(grade_value, class_id):
     if request.method == 'POST':
         action_name = request.form.get('action')
         handle_action(action_name)(class_id)
+        return redirect(url_for('assignment_teach'))
 
     # xử lí show khi tìm kiếm grade và class
     subjects = teacher_subject.get_subjects_by_grade(Grade(grade_value))
@@ -229,11 +239,10 @@ def teacher_score():
     return render_template('teacher/teacher_score.html', user_page='staff')
 
 
-
 # @app.context_processor
 # def common_context_params():
 #     return {
-#         ''
+#         'message':ALERT_MESSAGE
 #     }
 
 

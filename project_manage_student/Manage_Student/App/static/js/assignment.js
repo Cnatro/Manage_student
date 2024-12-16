@@ -1,3 +1,40 @@
+//nút tìm chỗ search
+document.addEventListener('DOMContentLoaded',function(){
+    let form = document.getElementById('search-assignment');
+    let grade = document.getElementById('grade');
+    let class_ = document.getElementById('class_');
+
+    if(form){
+            form.addEventListener('submit', function (event) {
+            if (grade.value === '' || class_.value === '') {
+                event.preventDefault(); // Ngăn chặn gửi form
+                alert('Vui lòng chọn đầy đủ thông tin Khối và Lớp trước khi tìm kiếm!');
+            }
+        });
+    }
+
+//    btn save
+    let form_assignment = document.getElementById('form-assignment');
+    if( form_assignment ){
+        form_assignment.addEventListener('submit',function(event){
+            const teacherSelects = document.querySelectorAll("select[name^='teacher_subject_id']");
+            is_error = false;
+
+            for( t of teacherSelects ){
+                if(t.value === ''){
+                    alert('Vui lòng chọn đầy đủ giáo viên phân công!!');
+                    is_error = true;
+                    break;
+                }
+            }
+            if(is_error)
+                event.preventDefault();
+
+        });
+    }
+
+});
+//==========================
 function get_class_by_grade(){
     const selectedValue = document.getElementById('grade').value;
     const class_list = document.getElementById('class_');
