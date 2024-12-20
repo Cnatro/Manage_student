@@ -26,7 +26,7 @@ Trang quản lí danh sách lớp
                     <td><a class="text-decoration-none" href="/staff/classes_View/info/{{c.id}}">{{ c.name }}</a></td>
                     <td>{{ c.user.profile.name }}</td>
                     <td>{{ c.quantity_student }}</td>
-                    <td><input class="form-check-input p-2 action-checkbox" type="checkbox" value="{{c.id}}"
+                    <td><input class="form-check-input p-2 action-checkbox" data-name="{{c.name}}" data-quantity="{{c.quantity_student}}" type="checkbox" value="{{c.id}}"
                                name="class_id"/>
                     </td>
                 </tr>
@@ -70,22 +70,9 @@ Trang quản lí danh sách lớp
     <button class="btn btn-outline-primary" type="submit">Lưu</button>
     {% endif %}
 </form>
+<script src="{{url_for('static',filename='js/manage_class.js')}}"></script>
 <script>
-    window.onload = function(){
-        const checkboxes = document.querySelectorAll('.action-checkbox');
-
-        checkboxes.forEach((checkbox) => {
-            checkbox.addEventListener('change', function () {
-                if (this.checked) {
-                    checkboxes.forEach((cb) => {
-                        if (cb !== this) {
-                            cb.checked = false;
-                        }
-                    });
-                }
-            });
-        });
-    }
-
-</script>
+        // Nhúng dữ liệu từ Flask vào window
+        window.quantity_student_allow = {{ quantity_student_allow | tojson }};
+    </script>
 {% endblock %}

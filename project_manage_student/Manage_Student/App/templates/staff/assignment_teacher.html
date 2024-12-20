@@ -56,17 +56,7 @@ Trang phân công giảng dạy
 
         <div class="col-md-3 col-6">
             <label for="learn_year">Năm học : </label>
-            <select class="form-select" aria-label="Default select example" id="learn_year"
-                    onchange="value_of_semesters()">
-                <option selected>Chọn năm học</option>
-                {% if semesters %}
-                {% for s in semesters %}
-                <option value="{{s}}">{{s}}</option>
-                {% endfor %}
-                {% else %}
-                <option>Không có dữ liệu</option>
-                {% endif %}
-            </select>
+            <input class="form-control" type="text" name="" id="learn_year" value="{{semesters[0].year}}" disabled>
         </div>
     </div>
     {% endif %}
@@ -78,7 +68,9 @@ Trang phân công giảng dạy
             </button>
         </div>
         <div class="col-md-3 col-6">
-            <button type="submit" name="action" value="save" id="save_plan" class="btn btn-outline-secondary form-control">Lưu</button>
+            <button type="submit" name="action" value="save" id="save_plan"
+                    class="btn btn-outline-secondary form-control">Lưu
+            </button>
         </div>
     </div>
     <table class="table text-center table-bordered border-primary mt-2" id="teacher_assignment`">
@@ -97,7 +89,7 @@ Trang phân công giảng dạy
         <tr class="row">
             <th class=" col-md-1">{{ loop.index }}</th>
             <td class="col-md-2">
-                <input class="text-center form-control subjects" type="hidden"  name="subject_id" value="{{sb.id}}"/>
+                <input class="text-center form-control subjects" type="hidden" name="subject_id" value="{{sb.id}}"/>
                 <input class="text-center form-control" type="text" id="" value="{{sb.name}}" disabled/>
             </td>
             <td class="col-md-5">
@@ -112,14 +104,12 @@ Trang phân công giảng dạy
                 <input class="form-check-input mt-2 mb-2 semester-both" type="checkbox" id="semesters-{{sb.id}}"
                        onchange="check_semester({{sb.id}},'total')" value="both" name="semester-both-{{sb.id}}"/>
             </td>
+            {% for s in semesters %}
             <td class="col-md-1">
-                <input class="form-check-input mt-2 mb-2 semester1" type="checkbox" id="semester1-{{sb.id}}"
-                       onchange="check_semester({{sb.id}},'sub-total')" value="1" name="semester-{{sb.id}}"/>
+                <input class="form-check-input mt-2 mb-2 semester{{loop.index}}" type="checkbox" id="semester{{loop.index}}-{{sb.id}}"
+                       onchange="check_semester({{sb.id}},'sub-total')" value="{{s.id}}" name="semester-{{sb.id}}"/>
             </td>
-            <td class="col-md-1">
-                <input class="form-check-input mt-2 mb-2 semester2" type="checkbox" id="semester2-{{sb.id}}"
-                       onchange="check_semester({{sb.id}},'sub-total')" value="2" name="semester-{{sb.id}}"/>
-            </td>
+            {% endfor %}
         </tr>
         {% endfor %}
         </tbody>
@@ -128,3 +118,8 @@ Trang phân công giảng dạy
 </form>
 <script src="{{url_for('static',filename='js/assignment.js')}}"></script>
 {% endblock %}
+
+<!--            <td class="col-md-1">-->
+<!--                <input class="form-check-input mt-2 mb-2 semester2" type="checkbox" id="semester2-{{sb.id}}"-->
+<!--                       onchange="check_semester({{sb.id}},'sub-total')" value="2" name="semester-{{sb.id}}"/>-->
+<!--            </td>-->

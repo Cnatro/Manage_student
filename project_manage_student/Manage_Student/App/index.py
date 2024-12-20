@@ -3,17 +3,19 @@ from flask import render_template, url_for, redirect
 import random
 
 from App import app, login, ALLOW_EXTENSIONS, utils
+from App.admin import *
 from flask_login import login_user, logout_user, current_user, login_required
 
 from App.model import UserRole
 from App.decorators import role_only
 
 from App import form
-from App.dao import auth, student, teacher_subject, exam, semester
+from App.dao import auth, student, teacher_subject, exam, semester, teacher_list
 from App.dao.assignment import handle_action
 
 from App.api.student_class import *
 from App.api.teacher_assignment import *
+from App.api.teacher_score import *
 
 
 # user login
@@ -26,7 +28,7 @@ def get_user_by_id(user_id):
 def index():
     if current_user.is_authenticated:
         if current_user.user_role == UserRole.ADMIN:
-            pass
+            return redirect('/admin')
         user_page = current_user.user_role
         return redirect(url_for('home', user_page=user_page))
     return redirect(url_for('login_process'))
@@ -73,7 +75,7 @@ def manage_student():
 
     if request.method == "POST":
         if form_add_student.validate_on_submit():
-            data = add_student(form_add_student=form_add_student,staff_id=current_user.id)
+            data = add_student(form_add_student=form_add_student, staff_id=current_user.id)
             student.create_student(**data)
             return redirect(url_for('manage_student'))
         else:
@@ -127,7 +129,7 @@ def add_student(form_add_student, staff_id):
     return data
 
 
-@app.route('/staff/manage_student/delete/<int:student_id>')
+@app.route('/staff/manage_student/delete/<int:student_id>', methods=['GET', 'DELETE'])
 def delete_student(student_id):
     student.del_student(student_id=student_id)
     return redirect(url_for('manage_student'))
@@ -147,6 +149,7 @@ def class_view():
     return render_template('staff/classes_View.html',
                            class_=class_,
                            students_no_class=students_no_class,
+                           quantity_student_allow=app.config['QUANTITY_STUDENT'],
                            user_page='staff')
 
 
@@ -169,7 +172,7 @@ def change_class():
     if request.method == "POST":
         student_ids = request.form.getlist('student_id')
         class_id = request.form.get('class_id')
-        student_class.change_student_to_class(class_id, student_ids)
+        student_class.change_student_to_class(class_id=class_id, student_ids=student_ids)
     return render_template('/staff/adjust_class.html',
                            classes_none=classes_none,
                            user_page='staff')
@@ -181,11 +184,11 @@ def change_class():
 def adjust_class():
     if request.method == "POST":
         grade_id = int(request.form.get('grade_id'))
-        if grade_id :
+        if grade_id:
             # lấy thông tin hs cũ và lưu vào file excel
             info_students_old_grade = exam.get_info_old_students(grade_=Grade(grade_id))
             if info_students_old_grade:
-                data_old_students = exam.get_info_students_for_excel(info_students_old_grade)
+                data_old_students = exam.get_info_students_for_excel(old_students=info_students_old_grade)
                 utils.export_excel(data=data_old_students, year_learn=data_old_students[0]['learn_year'])
                 # cập nhận lại thông tin cho hs lên lớp xóa thông tin cũ
                 student_class.update_class(old_students=info_students_old_grade, grade=Grade(grade_id).value)
@@ -200,31 +203,27 @@ def adjust_class():
 @app.route('/staff/assignment_teacher', methods=['GET', 'POST'])
 @role_only([UserRole.STAFF])
 def assignment_teach():
-    semesters = semester.get_all_semester()
     if request.method == 'POST':
         grade = int(request.form.get('grade'))
         class_ = int(request.form.get('class_'))
         return redirect(url_for('teacher_subject_assignment',
                                 grade_value=grade,
                                 class_id=class_))
-
-    return render_template('staff/assignment_teacher.html', user_page='staff',
-                           semesters=semester.unique_semester(semesters))
+    return render_template('staff/assignment_teacher.html', user_page='staff')
 
 
 @app.route('/staff/assignment_teacher/<int:grade_value>/<int:class_id>', methods=['GET', 'POST'])
 def teacher_subject_assignment(grade_value, class_id):
-    semesters = semester.get_all_semester()
+    semesters = semester.get_semester_by_year(datetime.now().year)
     # xử lí action save and delete
     if request.method == 'POST':
         action_name = request.form.get('action')
-        handle_action(action_name)(class_id)
+        handle_action(action_name=action_name)(class_id=class_id)
         return redirect(url_for('assignment_teach'))
-
     # xử lí show khi tìm kiếm grade và class
     subjects = teacher_subject.get_subjects_by_grade(Grade(grade_value))
     return render_template('staff/assignment_teacher.html', user_page='staff',
-                           semesters=semester.unique_semester(semesters),
+                           semesters=semesters,
                            subjects=subjects,
                            grade_value=grade_value,
                            class_id=class_id,
@@ -233,17 +232,11 @@ def teacher_subject_assignment(grade_value, class_id):
 
 
 # teacher
-@app.route('/teacher_score')
+@app.route('/teacher/teacher_score')
 @role_only([UserRole.TEACHER])
 def teacher_score():
-    return render_template('teacher/teacher_score.html', user_page='staff')
-
-
-# @app.context_processor
-# def common_context_params():
-#     return {
-#         'message':ALERT_MESSAGE
-#     }
+    teach_classes = teacher_list.get_class_by_teacher_id(current_user.id)
+    return render_template('teacher/teacher_score.html', user_page='teacher', teach_classes=teach_classes)
 
 
 if __name__ == '__main__':

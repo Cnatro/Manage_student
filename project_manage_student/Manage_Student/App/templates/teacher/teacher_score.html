@@ -1,0 +1,143 @@
+{% extends 'layout/base.html' %}
+<!--title-->
+{% block title %}
+Trang chủ
+{% endblock %}
+<!--content-->
+{% block content %}
+{% if class_name  %}
+<!--dòng đầu-->
+<div class="row border border-primary rounded-3 mt-2 mb-3">
+    <div class="col-4 p-3">
+        <a href="/teacher/teacher_input_score/" class="btn btn-primary">Nhập điểm</a>
+    </div>
+    <div class="col-4 p-3">
+        <a href="" class="btn btn-primary">Xuất file</a>
+    </div>
+    <div class="col-4 p-3 text-end">
+        <a href="/teacher/teacher_score" class="btn btn-danger">Quay lại</a>
+    </div>
+</div>
+<table class="table table-bordered text-center border border-dark ">
+    <div class="border border-dark">
+        <h3 class="text-center py-2 m-0">BẢNG ĐIỂM MÔN HỌC</h3>
+    </div>
+
+    <!-- Thông tin lớp và môn học -->
+    <div class="row g-0">
+        <div class="col-6 border border-dark border-top-0">
+            <div class="p-2">
+                <span>Lớp:</span>
+
+            </div>
+        </div>
+        <div class="col-6 border border-dark border-top-0 border-start-0">
+            <div class="p-2">
+                <span>Môn:</span>
+
+            </div>
+        </div>
+    </div>
+    <!-- Thông tin học kỳ và năm học -->
+    <div class="row g-0">
+        <div class="col-6 border border-dark border-top-0 border-bottom-0">
+            <div class="p-2">
+                <span>Học kỳ:</span>
+
+            </div>
+        </div>
+        <div class="col-6 border border-dark border-top-0 border-start-0 border-bottom-0">
+            <div class="p-2">
+                <span>Năm học:</span>
+
+            </div>
+        </div>
+    </div>
+    <tr>
+        <th>STT</th>
+        <th>Họ tên</th>
+        <th>Điểm 15p</th>
+        <th>Điểm 1 tiết</th>
+        <th>Điểm thi</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for st, scores in students_class|zip(student_scores) %}
+    <tr>
+        <th scope="row">{{ loop.index }}</th>
+        <td>{{ st.students.profile.name }}</td>
+        <td>{{ scores.scores_15p|join(' | ') if scores.scores_15p else '' }}</td>
+        <td>{{ scores.scores_1tiet|join(' | ') if scores.scores_1tiet else '' }}</td>
+        <td>{{ scores.scores_cuoiki if scores.scores_cuoiki is not none else '' }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else  %}
+<form action="/teacher/teacher_score" method="post">
+    <h1>Thông tin tìm kiếm</h1>
+    <div class="row mb-3 mt-3">
+        <div class="col-2">
+        </div>
+        <div class="col-3">
+            <select id="class-select" class="form-select class_in_teacher_score"
+                    name="class_id" onchange="get_info_by_class()">
+                <option value="">Chọn lớp học</option>
+                {% if teach_classes %}
+                {% for c in teach_classes %}
+                <option value="{{c.id}}">{{c.name}}</option>
+                {% endfor %}
+                {% endif %}
+            </select>
+        </div>
+        <div class="col-2">
+
+        </div>
+        <div class="col-3">
+            <select class="form-select" name="subject_id" id="subject_">
+
+            </select>
+        </div>
+        <div class="col-2">
+
+        </div>
+    </div>
+
+    <div class="row mb-3 mt-3">
+        <div class="col-2">
+
+        </div>
+        <div class="col-3">
+            <select class="form-select " name="semester_id" id="semester-select">
+
+
+            </select>
+        </div>
+        <div class="col-2">
+
+        </div>
+        <div class="col-3">
+            <select class="form-select" name="semester_year" id="semester_year">
+
+
+            </select>
+        </div>
+        <div class="col-2">
+
+        </div>
+    </div>
+    <div class="row col-12">
+        <div class="col-8">
+
+        </div>
+        <button type="submit" class="btn btn-info text text-white col-2 input-point mb-3" data-bs-toggle="modal"
+                data-bs-target="#inputModal">
+            <span></span>
+            <span>Tìm kiếm</span>
+        </button>
+    </div>
+</form>
+{% endif  %}
+<!--bang du lieu-->
+<script src="{{url_for('static',filename='js/teacher_score.js')}}"></script>
+{% endblock %}

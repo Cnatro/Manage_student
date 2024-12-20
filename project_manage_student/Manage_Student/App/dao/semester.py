@@ -1,15 +1,19 @@
 from App.model import Semester
 
-def get_all_semester():
-    return Semester.query.order_by(Semester.id.desc()).all()
+# def get_all_semester():
+#     return Semester.query.order_by(Semester.id.desc()).all()
 
 
-def unique_semester(semesters):
-    # loại bỏ được kí tu trùng k giữ thứ tự
-    # unique_dt = { s.year for s in semesters }
-    # giữ được thứ tự
-    unique_dt = list(dict.fromkeys(s.year for s in semesters))
-    return unique_dt
+# def unique_semester(semesters):
+#     grouped_data = {}
+#     for s in semesters:
+#         if s.year not in grouped_data:
+#             grouped_data[s.year] = []
+#         grouped_data[s.year].append({
+#             "semester_name": s.name,
+#             "semester_id": s.id
+#         })
+#     return grouped_data
 
 
 def get_semester_by_year(year_):

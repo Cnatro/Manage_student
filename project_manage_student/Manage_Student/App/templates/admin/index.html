@@ -1,9 +1,7 @@
-{% extends '../layout/base.html' %}
-<!--title-->
-{% block title %}
- Trang chủ
-{% endblock %}
-<!--content-->
-{% block content %}
- <h1>Nội dung trang ADMIN</h1>
+{% extends 'admin/master.html' %}
+{% block body %}
+{% if current_user.is_authenticated %}
+<h1>Chao mung ban den trang admin</h1>
+<h3>hello {{current_user.name}}</h3>
+{% endif %}
 {% endblock %}

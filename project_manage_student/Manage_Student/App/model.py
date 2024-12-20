@@ -1,11 +1,11 @@
 import enum
 import hashlib
-
 from App import app, db
 from sqlalchemy import Integer, Column, String, ForeignKey, Float, DateTime, Boolean, Text, Enum, CheckConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy import func
 from flask_login import UserMixin
+from datetime import datetime
 
 
 class UserRole(enum.Enum):
@@ -19,6 +19,7 @@ class Grade(enum.Enum):
     K10 = 10
     K11 = 11
     K12 = 12
+
 
 
 class SemesterName(enum.Enum):
@@ -80,7 +81,7 @@ class Subject(db.Model):
 class Semester(db.Model):
     id = Column(Integer, autoincrement=True, primary_key=True)
     name = Column(Enum(SemesterName))
-    year = Column(String(50))
+    year = Column(Integer,default=datetime.now().year)
 
 
 class StudentClass(db.Model):
@@ -302,12 +303,8 @@ if __name__ == '__main__':
         # db.session.commit()
 
         semesters = [
-            Semester(name=SemesterName.HK1, year="2022-2023"),
-            Semester(name=SemesterName.HK2, year="2022-2023"),
-            Semester(name=SemesterName.HK1, year="2023-2024"),
-            Semester(name=SemesterName.HK2, year="2023-2024"),
-            Semester(name=SemesterName.HK1, year="2024-2025"),
-            Semester(name=SemesterName.HK2, year="2024-2025"),
+            Semester(name=SemesterName.HK1),
+            Semester(name=SemesterName.HK2),
         ]
         # for s in semesters:
         #     db.session.add(s)
