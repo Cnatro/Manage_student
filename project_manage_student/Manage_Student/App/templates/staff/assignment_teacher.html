@@ -64,13 +64,13 @@ Trang phân công giảng dạy
     {% if subjects %}
     <div class="row">
         <div class="col-md-3 col-6">
-            <button type="submit" name="action" value="delete" class="btn btn-outline-danger form-control">Xóa tất cả
-            </button>
-        </div>
-        <div class="col-md-3 col-6">
             <button type="submit" name="action" value="save" id="save_plan"
                     class="btn btn-outline-secondary form-control">Lưu
             </button>
+        </div>
+        <div class="col-md-3 col-6">
+<!--            <button type="submit" name="action" value="delete" class="btn btn-outline-danger form-control">Xóa tất cả-->
+<!--            </button>-->
         </div>
     </div>
     <table class="table text-center table-bordered border-primary mt-2" id="teacher_assignment`">
@@ -86,17 +86,17 @@ Trang phân công giảng dạy
         </thead>
         <tbody class="table-hover show-student">
         {% for sb in subjects %}
-        <tr class="row">
+        <tr class="row" id="row-subject-{{sb.id}}">
             <th class=" col-md-1">{{ loop.index }}</th>
             <td class="col-md-2">
                 <input class="text-center form-control subjects" type="hidden" name="subject_id" value="{{sb.id}}"/>
-                <input class="text-center form-control" type="text" id="" value="{{sb.name}}" disabled/>
+                <input class="text-center form-control" type="text"  value="{{sb.name}}" disabled/>
             </td>
             <td class="col-md-5">
                 <select class="form-select" aria-label="Default select example" name="teacher_subject_id-{{sb.id}}">
                     <option value="" selected>Chọn giáo viên</option>
-                    {% for teacher in get_teachers(sb.id) %}
-                    <option value="{{teacher.id}}">{{teacher.teacher.profile.name}}</option>
+                    {% for tb in get_teachers(sb.id) %}
+                    <option id="teacher-subject-{{sb.id}}"  value="{{tb.id}}">{{tb.teacher.profile.name}}</option>
                     {% endfor %}
                 </select>
             </td>
@@ -117,9 +117,30 @@ Trang phân công giảng dạy
     {% endif %}
 </form>
 <script src="{{url_for('static',filename='js/assignment.js')}}"></script>
-{% endblock %}
+<script>
+     function load_assignment(){
+        {% if plan_class %}
+        {% for p in plan_class %}
+        var row_subject = document.getElementById("row-subject-{{p.teacher_subjects.subjects.id}}");
+        var teacher = row_subject.querySelector("#teacher-subject-{{p.teacher_subjects.subjects.id}}");
+        var semester1 = row_subject.querySelector("#semester1-{{p.teacher_subjects.subjects.id}}");
+        var semester2 = row_subject.querySelector("#semester2-{{p.teacher_subjects.subjects.id}}");
 
-<!--            <td class="col-md-1">-->
-<!--                <input class="form-check-input mt-2 mb-2 semester2" type="checkbox" id="semester2-{{sb.id}}"-->
-<!--                       onchange="check_semester({{sb.id}},'sub-total')" value="2" name="semester-{{sb.id}}"/>-->
-<!--            </td>-->
+        teacher.selected = true;
+        if({{p.semester_id}} != '' && '{{p.semester.name.name}}' === 'HK1'){
+            semester1.checked = true;
+            check_semester({{p.teacher_subjects.subjects.id}},'part')
+        }
+        if({{p.semester_id}} != '' && '{{p.semester.name.name}}' === 'HK2'){
+            semester2.checked = true;
+            check_semester({{p.teacher_subjects.subjects.id}},'part')
+        }
+        {% endfor %}
+        {% endif %}
+    }
+
+    window.onload = function(){
+        load_assignment();
+    };
+</script>
+{% endblock %}

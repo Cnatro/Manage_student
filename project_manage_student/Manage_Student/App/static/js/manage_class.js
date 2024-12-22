@@ -77,7 +77,3 @@ function check_all_adjust(type=null){
         parent_check.checked = is_check;
     }
 }
-
-function check_quantity_student(class_id){
-
-}

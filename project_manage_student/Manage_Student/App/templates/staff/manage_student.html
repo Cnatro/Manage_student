@@ -161,7 +161,7 @@ Trang quản lí học sinh
     </thead>
     <tbody class="show-student">
     {% for st in students %}
-    <tr>
+    <tr id="student-{{st.student_id}}">
         <th scope="row">{{ loop.index }}</th>
         <td>{{ st.students.profile.name }}</td>
         <td>{{ 'Nam' if st.students.profile.gender == 0 else 'Nữ' if st.students.profile.gender == 1 else 'None' }}</td>
@@ -169,8 +169,11 @@ Trang quản lí học sinh
         <td>Điểm</td>
         <td>{{ 'Đã thanh toán' if st.students.status_payment == 1 else 'Chưa thanh toán'  }}</td>
         <td>{{st.class_.name}}</td>
-        <td><a class="text-danger delete-student" href="/staff/manage_student/delete/{{st.student_id}}"><i
-                class="fa-regular fa-trash-can"></i></a></td>
+        <td>
+            <button class="btn btn-danger" onclick="deleteStudent({{st.student_id}})" style="font-size: .5rem;!important">
+                <i class="fa-regular fa-trash-can"></i>
+            </button>
+        </td>
     </tr>
     {% endfor %}
     </tbody>
@@ -184,5 +187,17 @@ Trang quản lí học sinh
             $('#add_student').modal('show'); // Sử dụng ID modal của bạn
         {% endif %}
     });
+    function deleteStudent(studentId){
+             if(confirm('Bạn có chắc chắn muốn xóa') === true){
+                    fetch(`/api/student_class/${studentId}`,{
+                        methods:'delete'
+                    }).then(res => res.json()).then(data => {
+                        if(data.status === 200){
+                            alert('Đã xóa thành công');
+                            document.getElementById(`student-${studentId}`).style.display='none';
+                        }
+                    });
+             }
+    }
 </script>
 {% endblock %}

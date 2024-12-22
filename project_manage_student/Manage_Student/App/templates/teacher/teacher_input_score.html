@@ -1,0 +1,69 @@
+{% extends 'layout/base.html' %}
+<!--title-->
+{% block title %}
+Trang chủ
+{% endblock %}
+<!--content-->
+{% block content %}
+{% if teach_plan %}
+<div class="mt-2 mb-2">
+    <div class="bg-info p-4">
+        <h4>Nhập điểm cho lớp {{teach_plan.classes.name}}</h4>
+        <div class="row">
+            <div class="col-md-12 text-end">
+                <button onclick="saveScore({{teach_plan.id}})" class="btn btn-success" id="updateButton">Lưu điểm</button>
+                <a href="/teacher/view_score/{{teach_plan.id}}" class="btn btn-danger">Quay lại</a>
+            </div>
+        </div>
+    </div>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>STT</th>
+            <th>Tên Học Sinh</th>
+            <th>Điểm 15p</th>
+            <th>Điểm 1 Tiết</th>
+            <th>Điểm Thi</th>
+            <th class="action"></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for student_class in teach_plan.classes.student_class %}
+        {% set st = student_class.students %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ st.profile.name }}</td>
+            <td>
+                {% for i in range(teach_plan.teacher_subjects.subjects.number_of_15p) %}
+                <input type="number" name="" class="EXAM_15P"
+                       data-id="{{st.id}}"
+                       min="0" max="10"
+                       style="width: 60px; padding: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;"/>
+                {% endfor %}
+            </td>
+            <td>
+                {% for i in range(teach_plan.teacher_subjects.subjects.number_of_45p) %}
+                <input type="number" name="" id="2" class="EXAM_45P"
+                       data-id="{{st.id}}"
+                       min="0" max="10"
+                       style="width: 60px; padding: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;"/>
+                {% endfor %}
+            </td>
+            <td>
+                <input type="number" name="" id="3" class="FINAL_EXAM"
+                       data-id="{{st.id}}"
+                       min="0" max="10"
+                       style="width: 60px; padding: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;"/>
+            </td>
+            <td>
+                <button class="btn btn-danger">Sửa</button>
+            </td>
+        </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+</div>
+{% endif %}
+<script src="{{url_for('static',filename='js/teacher_score.js')}}"></script>
+{% endblock %}

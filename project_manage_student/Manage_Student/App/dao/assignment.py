@@ -1,3 +1,4 @@
+import pdb
 from operator import truediv
 
 from flask import request, redirect, url_for
@@ -52,11 +53,17 @@ def handle_action(action_name):
 def add_teacher_plan(list_data):
     for dt in list_data:
         if isinstance(dt['semester_id'], int):
-            create_plan(
+            plan, is_create = create_plan(
                 teacher_subject_id=dt['teacher_subject_id'],
                 class_id=dt['class_id'],
                 semester_id=dt['semester_id']
             )
+            # xoa gv cũ, lấy giáo viên ms nhất cho môn đó
+            if is_create:
+                plan.teacher_subject_id = dt['teacher_subject_id']
+                plan.class_id = dt['class_id']
+                plan.semester_id = dt['semester_id']
+                db.session.commit()
             # nhưng kế hoạch đã tồn tại trc đó nhưng ở khác kì vì này chỉ được 1 kì duy nhất thôi
             query_another = TeacherPlan.query.filter(TeacherPlan.teacher_subject_id.__eq__(dt['teacher_subject_id']),
                                                      TeacherPlan.class_id.__eq__(dt['class_id']),
@@ -66,11 +73,16 @@ def add_teacher_plan(list_data):
                 db.session.commit()
         else:
             for s in dt['semester_id']:
-                create_plan(
+                plan,is_create = create_plan(
                     teacher_subject_id=dt['teacher_subject_id'],
                     class_id=dt['class_id'],
                     semester_id=s
                 )
+                if is_create:
+                    plan.teacher_subject_id = dt['teacher_subject_id']
+                    plan.class_id = dt['class_id']
+                    plan.semester_id = s
+                    db.session.commit()
 
 
 def create_plan(teacher_subject_id, class_id, semester_id):
@@ -79,7 +91,7 @@ def create_plan(teacher_subject_id, class_id, semester_id):
                                     TeacherPlan.semester_id.__eq__(semester_id)).first()
 
     if plan:
-        return True
+        return plan, True
     else:
         plan = TeacherPlan(
             teacher_subject_id=teacher_subject_id,
@@ -88,4 +100,8 @@ def create_plan(teacher_subject_id, class_id, semester_id):
         )
         db.session.add(plan)
         db.session.commit()
-        return False
+        return plan, False
+
+
+def load_assignments_of_class(class_id):
+    return TeacherPlan.query.filter(TeacherPlan.class_id.__eq__(class_id)).all()

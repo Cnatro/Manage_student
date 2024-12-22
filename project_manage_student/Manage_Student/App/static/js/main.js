@@ -1,16 +1,16 @@
-// thông báo thành công or thất bại
- document.addEventListener('DOMContentLoaded',function(){
- // ủy quyền sự kiện khi người dùng nhấn vào .delete thì sự kiện ms đc kích hoạt
-        $('.show-student').on('click','.delete-student',function(event){
-            event.preventDefault()
-
-            let result = confirm('Bạn chắc chắn muốn xóa');
-            if( result ){
-                window.location.href = this.href;
-                confirm('Bạn đã xóa thành công');
-            }
-        })
- });
+//// thông báo thành công or thất bại
+// document.addEventListener('DOMContentLoaded',function(){
+// // ủy quyền sự kiện khi người dùng nhấn vào .delete thì sự kiện ms đc kích hoạt
+//        $('.show-student').on('click','.delete-student',function(event){
+//            event.preventDefault()
+//
+//            let result = confirm('Bạn chắc chắn muốn xóa');
+//            if( result ){
+//                window.location.href = this.href;
+//                confirm('Bạn đã xóa thành công');
+//            }
+//        })
+// });
 //=====================================
 
 function get_students_by_class(columns,type=false){
@@ -25,29 +25,7 @@ function get_students_by_class(columns,type=false){
               })
         }).then(res => res.json())
           .then(data => {
-               // cập nhật học sinh
-               let $items= $('.show-student');
-               $items[0].innerHTML = "";
-               let index = 1;
-               for( let key in data.students){
-                    const student = data.students[key];
-                    let row = `<tr>
-                        <th scope="row">${index++}</th>`;
-
-                        columns.forEach(col => {
-                            row += `<td>${student[col] || 'chưa cập nhật'}</td>`;
-                        });
-
-                        if(type === true){
-                            row += `<td><input class="form-check-input mt-2 mb-2 child-check" type="checkbox"
-                             name='student_id' value='${student.student_id}' onchange="check_all_adjust()"/></td>`
-                        }else{
-                             row += `<td><a class="text-danger delete-student" href="/staff/manage_student/delete/${student.student_id}"> <i class="fa-regular fa-trash-can"></i> </a></td>`;
-                        }
-
-                        row += `</tr>`;
-                        $items.append(row);
-               };
+               updateListStudent(columns,data,type);
           });
 }
 
@@ -65,12 +43,17 @@ function search_name_student(columns,type=false){
         })
     }).then( res => res.json())
       .then( data => {
-            let $items= $('.show-student');
+            updateListStudent(columns,data,type);
+      });
+}
+
+function updateListStudent(columns,data,type=false){
+    let $items= $('.show-student');
                $items[0].innerHTML = "";
                let index = 1;
                for( let key in data.students){
                     const student = data.students[key];
-                    let row = `<tr>
+                    let row = `<tr id="student-${student.student_id}">
                         <th scope="row">${index++}</th>`;
                         columns.forEach(col => {
                             row += `<td>${student[col] || 'chưa cập nhật'}</td>`;
@@ -80,11 +63,14 @@ function search_name_student(columns,type=false){
                             row += `<td><input class="form-check-input mt-2 mb-2 child-check" type="checkbox"
                              name='student_id' value='${student.student_id}' onchange="check_all_adjust()"/></td>`
                         }else{
-                             row += `<td><a class="text-danger delete-student" href="/staff/manage_student/delete/${student.student_id}"><i class="fa-regular fa-trash-can"></i></a></td>`;
+                             row += `<td>
+                                     <button class="btn btn-danger" onclick="deleteStudent(${student.student_id})" style="font-size: .5rem;!important">
+                                        <i class="fa-regular fa-trash-can"></i>
+                                     </button>
+                             </td>`;
                         }
 
                         row += `</tr>`;
                         $items.append(row);
                };
-      });
 }

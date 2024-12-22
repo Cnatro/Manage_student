@@ -1,3 +1,5 @@
+import pdb
+
 import pandas
 from flask import render_template, url_for, redirect
 import random
@@ -10,8 +12,7 @@ from App.model import UserRole
 from App.decorators import role_only
 
 from App import form
-from App.dao import auth, student, teacher_subject, exam, semester, teacher_list
-from App.dao.assignment import handle_action
+from App.dao import auth, student, teacher_subject, exam, semester, teacher_list,regulation,assignment
 
 from App.api.student_class import *
 from App.api.teacher_assignment import *
@@ -60,7 +61,7 @@ def logout_process():
 @login_required
 @role_only([UserRole.TEACHER, UserRole.STAFF])
 def home():
-    user_page = request.args.get('user_page', default='staff').split('.')[-1]  # lấy giá trị cuối cùng
+    user_page = request.args.get('user_page', default=app.config['USER_STAFF']).split('.')[-1]  # lấy giá trị cuối cùng
     return render_template("index.html",
                            user_page=str.lower(user_page))
 
@@ -86,7 +87,8 @@ def manage_student():
                            form_add_student=form_add_student,
                            students=students,
                            class_=class_,
-                           user_page='staff', show_modal=show_modal)
+                           user_page=app.config['USER_STAFF'],
+                           show_modal=show_modal)
 
 
 def allowed_file(filename):
@@ -110,7 +112,8 @@ def upload_by_excel():
             # thêm ds hs vào database
             student.add_list_student(list_data=data, staff_id=current_user.id)
             # phân lớp
-            quantity_student_less = random.randint(app.config['QUANTITY_STUDENT'] - 5, app.config['QUANTITY_STUDENT'])
+            quantity_student_allow = regulation.get_regulation_by_name('Quantity_student').max
+            quantity_student_less = random.randint(quantity_student_allow - 5,quantity_student_allow)
             student_class.auto_create_class(quantity_student_less)
         except Exception as e:
             return jsonify({'error': str(e)}), 500
@@ -129,12 +132,6 @@ def add_student(form_add_student, staff_id):
     return data
 
 
-@app.route('/staff/manage_student/delete/<int:student_id>', methods=['GET', 'DELETE'])
-def delete_student(student_id):
-    student.del_student(student_id=student_id)
-    return redirect(url_for('manage_student'))
-
-
 # quản lí danh sách lớp
 @app.route('/staff/classes_View', methods=['GET', 'POST'])
 @role_only([UserRole.STAFF])
@@ -146,11 +143,12 @@ def class_view():
 
     class_ = classes.get_list_class()
     students_no_class = student_class.get_list_student_no_class()
+    quantity_student_allow = regulation.get_regulation_by_name('Quantity_student').max
     return render_template('staff/classes_View.html',
                            class_=class_,
                            students_no_class=students_no_class,
-                           quantity_student_allow=app.config['QUANTITY_STUDENT'],
-                           user_page='staff')
+                           quantity_student_allow=quantity_student_allow,
+                           user_page=app.config['USER_STAFF'])
 
 
 @app.route('/staff/classes_View/info/<int:class_id>')
@@ -159,7 +157,7 @@ def class_detail(class_id):
     class_ = classes.get_class_by_id(class_id=class_id)
     students = student_class.get_list_student(class_id=class_id)
     return render_template('staff/class_info.html',
-                           user_page='staff',
+                           user_page=app.config['USER_STAFF'],
                            class_=class_,
                            students=students)
 
@@ -168,14 +166,16 @@ def class_detail(class_id):
 @app.route('/staff/change_class', methods=['GET', 'POST'])
 @role_only([UserRole.STAFF])
 def change_class():
-    classes_none = classes.get_list_class_less_quantity(app.config['QUANTITY_STUDENT'])
     if request.method == "POST":
         student_ids = request.form.getlist('student_id')
         class_id = request.form.get('class_id')
         student_class.change_student_to_class(class_id=class_id, student_ids=student_ids)
+
+    quantity_student_allow = regulation.get_regulation_by_name('Quantity_student').max
+    classes_none = classes.get_list_class_less_quantity(quantity_student_allow)
     return render_template('/staff/adjust_class.html',
                            classes_none=classes_none,
-                           user_page='staff')
+                           user_page=app.config['USER_STAFF'])
 
 
 # dieu chinh cho hc sinh len lop
@@ -196,7 +196,7 @@ def adjust_class():
             else:
                 return "Thuc hien khong thanh cong"
 
-    return render_template('/staff/adjust_class.html', user_page='staff')
+    return render_template('/staff/adjust_class.html', user_page=app.config['USER_STAFF'])
 
 
 # phân công giảng dạy
@@ -209,7 +209,7 @@ def assignment_teach():
         return redirect(url_for('teacher_subject_assignment',
                                 grade_value=grade,
                                 class_id=class_))
-    return render_template('staff/assignment_teacher.html', user_page='staff')
+    return render_template('staff/assignment_teacher.html', user_page=app.config['USER_STAFF'])
 
 
 @app.route('/staff/assignment_teacher/<int:grade_value>/<int:class_id>', methods=['GET', 'POST'])
@@ -218,12 +218,14 @@ def teacher_subject_assignment(grade_value, class_id):
     # xử lí action save and delete
     if request.method == 'POST':
         action_name = request.form.get('action')
-        handle_action(action_name=action_name)(class_id=class_id)
+        assignment.handle_action(action_name=action_name)(class_id=class_id)
         return redirect(url_for('assignment_teach'))
     # xử lí show khi tìm kiếm grade và class
+    plan_class = assignment.load_assignments_of_class(class_id=class_id)
     subjects = teacher_subject.get_subjects_by_grade(Grade(grade_value))
-    return render_template('staff/assignment_teacher.html', user_page='staff',
+    return render_template('staff/assignment_teacher.html', user_page=app.config['USER_STAFF'],
                            semesters=semesters,
+                           plan_class=plan_class,
                            subjects=subjects,
                            grade_value=grade_value,
                            class_id=class_id,
@@ -232,11 +234,41 @@ def teacher_subject_assignment(grade_value, class_id):
 
 
 # teacher
-@app.route('/teacher/teacher_score')
+@app.route('/teacher/teacher_score',methods=['GET','POST'])
 @role_only([UserRole.TEACHER])
 def teacher_score():
     teach_classes = teacher_list.get_class_by_teacher_id(current_user.id)
-    return render_template('teacher/teacher_score.html', user_page='teacher', teach_classes=teach_classes)
+    if request.method == "POST":
+        class_id = request.form.get('class_id')
+        semester_id = request.form.get('semester_id')
+        subject_id = request.form.get('subject_id')
+        teach_plan = teacher_list.get_plan(class_id=class_id,
+                                     semester_id=semester_id,
+                                     subject_id=subject_id,
+                                     teacher_id=current_user.id)
+
+        return redirect(url_for('view_score',teacher_plan_id=teach_plan.id))
+
+    return render_template('teacher/teacher_score.html',
+                           user_page='teacher',
+                           teach_classes=teach_classes)
+
+
+@app.route('/teacher/teacher_input_score/<int:teacher_plan_id>',methods=['GET','POST'])
+def input_score(teacher_plan_id):
+    teach_plan = teacher_list.get_teaching_plan_by_id(teacher_plan_id=teacher_plan_id)
+    # print(teach_plan.classes.student_class)
+    return render_template('teacher/teacher_input_score.html',
+                           user_page='teacher',
+                           teach_plan=teach_plan)
+
+
+@app.route('/teacher/view_score/<int:teacher_plan_id>')
+def view_score(teacher_plan_id):
+    teach_plan = teacher_list.get_teaching_plan_by_id(teacher_plan_id=teacher_plan_id)
+    return render_template('teacher/view_score.html',user_page='teacher',
+                           teach_plan=teach_plan,
+                           get_score=exam.get_score_student)
 
 
 if __name__ == '__main__':

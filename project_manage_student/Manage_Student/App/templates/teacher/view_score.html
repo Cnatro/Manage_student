@@ -1,0 +1,101 @@
+{% extends 'layout/base.html' %}
+
+{% block title %}
+Trang chủ
+{% endblock %}
+
+{% block content %}
+{% if teach_plan %}
+<div class="row border border-primary rounded-3 mt-2 mb-3">
+    <div class="col-3 p-3">
+        <a href="/teacher/teacher_input_score/{{teach_plan.id}}" class="btn btn-primary">Nhập điểm</a>
+    </div>
+    <div class="col-3 p-3">
+        <a href="" class="btn btn-primary">Xuất file excel</a>
+    </div>
+    <div class="col-3 p-3 text-end">
+        <a href="#" class="btn btn-primary">Xem điểm trung bình</a>
+    </div>
+    <div class="col-3 p-3 text-end">
+        <a href="/teacher/teacher_score" class="btn btn-danger">Quay lại</a>
+    </div>
+</div>
+<table class="table table-bordered text-center border border-dark ">
+    <div class="border border-dark">
+        <h3 class="text-center py-2 m-0">BẢNG ĐIỂM MÔN HỌC</h3>
+    </div>
+
+    <!-- Thông tin lớp và môn học -->
+    <div class="row g-0">
+        <div class="col-6 border border-dark border-top-0">
+            <div class="p-2">
+                <span>Lớp: {{teach_plan.classes.name}}</span>
+
+            </div>
+        </div>
+        <div class="col-6 border border-dark border-top-0 border-start-0">
+            <div class="p-2">
+                <span>Môn: {{teach_plan.teacher_subjects.subjects.name}}</span>
+
+            </div>
+        </div>
+    </div>
+    <!-- Thông tin học kỳ và năm học -->
+    <div class="row g-0">
+        <div class="col-6 border border-dark border-top-0 border-bottom-0">
+            <div class="p-2">
+                <span>Học kỳ: {{teach_plan.semester.name.name}}</span>
+
+            </div>
+        </div>
+        <div class="col-6 border border-dark border-top-0 border-start-0 border-bottom-0">
+            <div class="p-2"><span>Năm học: {{teach_plan.semester.year}}</span></div>
+        </div>
+    </div>
+    <thead>
+    <tr>
+        <th>STT</th>
+        <th>Tên Học Sinh</th>
+        <th>Điểm 15p</th>
+        <th>Điểm 1 Tiết</th>
+        <th>Điểm Thi</th>
+        <th class="action"></th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for student_class in teach_plan.classes.student_class %}
+    {% set st = student_class.students %}
+    <tr>
+        <td>{{ loop.index }}</td>
+        <td>{{ st.profile.name }}</td>
+        <td>
+            {% for i in range(teach_plan.teacher_subjects.subjects.number_of_15p) %}
+            <input type="number" name="" class="EXAM_15P"
+                   data-id="{{st.id}}"
+                   min="0" max="10"
+                   style="width: 60px; padding: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;"/>
+            {% endfor %}
+        </td>
+        <td>
+            {% for i in range(teach_plan.teacher_subjects.subjects.number_of_45p) %}
+            <input type="number" name="" id="2" class="EXAM_45P"
+                   data-id="{{st.id}}"
+                   min="0" max="10"
+                   style="width: 60px; padding: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;"/>
+            {% endfor %}
+        </td>
+        <td>
+            <input type="number" name="" id="3" class="FINAL_EXAM"
+                   data-id="{{st.id}}"
+                   min="0" max="10"
+                   style="width: 60px; padding: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;"/>
+        </td>
+        <td>
+            <button class="btn btn-danger">Sửa</button>
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+{% endblock %}

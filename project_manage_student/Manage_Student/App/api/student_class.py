@@ -1,6 +1,6 @@
 from flask import jsonify, request
 from App import app
-from App.dao import student_class, classes
+from App.dao import student_class, classes,student
 
 
 @app.route('/api/student_class', methods=['post'])
@@ -42,7 +42,6 @@ def get_student_search():
     value = request.json.get('value_search')
     class_id = request.json.get('class_id')
     students = student_class.get_list_student(class_id=class_id, value_name=value)
-    print()
     students_json = [
         {
             'id': st.id,
@@ -61,3 +60,10 @@ def get_student_search():
     ]
 
     return jsonify({'students': students_json})
+
+
+@app.route('/api/student_class/<int:student_id>',methods=['GET','DELETE'])
+def delete_student(student_id):
+    print(student_id)
+    student.del_student(student_id=student_id)
+    return jsonify({'status':200})
