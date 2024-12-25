@@ -44,7 +44,30 @@ def add_score(teacher_plan_id):
                 db.session.add(tmp_exam)
                 db.session.commit()
             if s.get('type_exam') and s.get('value'):
-                new_score = Score(type_exam=s.get('type_exam'), value=float(s.get('value')), exam_id=tmp_exam.id)
-                db.session.add(new_score)
+                is_score_exit = (Score.query.filter(Score.type_exam.__eq__(s.get('type_exam')),
+                                                    Score.exam_id.__eq__(tmp_exam.id),
+                                           Score.count_exam.__eq__(s.get('count_exam'))).first())
+                if is_score_exit is None:
+                    new_score = Score(type_exam=s.get('type_exam'),
+                                      value=float(s.get('value')),
+                                      count_exam=s.get('count_exam'),
+                                      exam_id=tmp_exam.id)
+                    db.session.add(new_score)
+    db.session.commit()
+    return jsonify({'status': 200})
+
+
+@app.route('/api/teacher_score/<int:teacher_plan_id>/edit_score', methods=['PUT'])
+def edit_score(teacher_plan_id):
+    list_score = request.json.get('list_score')
+    for s in list_score:
+        if s.get('student_id') and teacher_plan_id:
+            tmp_exam = exam.get_exam_by_student_id(teacher_plan_id=teacher_plan_id,student_id=int(s['student_id']))
+            if s.get('type_exam') and s.get('value'):
+                score = (Score.query.filter(Score.exam_id.__eq__(tmp_exam.id),
+                                           Score.type_exam.__eq__(s.get('type_exam')),
+                                           Score.count_exam.__eq__(s.get('count_exam')))
+                         .first())
+                score.value = float(s.get('value'))
     db.session.commit()
     return jsonify({'status': 200})

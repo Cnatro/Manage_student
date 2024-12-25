@@ -11,7 +11,7 @@ Trang chủ
         <h4>Nhập điểm cho lớp {{teach_plan.classes.name}}</h4>
         <div class="row">
             <div class="col-md-12 text-end">
-                <button onclick="saveScore({{teach_plan.id}})" class="btn btn-success" id="updateButton">Lưu điểm</button>
+                <button onclick="saveScore({{teach_plan.id}})" class="btn btn-success">Lưu điểm</button>
                 <a href="/teacher/view_score/{{teach_plan.id}}" class="btn btn-danger">Quay lại</a>
             </div>
         </div>
@@ -35,7 +35,8 @@ Trang chủ
             <td>{{ st.profile.name }}</td>
             <td>
                 {% for i in range(teach_plan.teacher_subjects.subjects.number_of_15p) %}
-                <input type="number" name="" class="EXAM_15P"
+                <input type="number" name="" class="EXAM_15P_{{loop.index}}"
+                       value="{{get_score(teach_plan.id,st.id,'EXAM_15P',loop.index).value}}"
                        data-id="{{st.id}}"
                        min="0" max="10"
                        style="width: 60px; padding: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;"/>
@@ -43,20 +44,24 @@ Trang chủ
             </td>
             <td>
                 {% for i in range(teach_plan.teacher_subjects.subjects.number_of_45p) %}
-                <input type="number" name="" id="2" class="EXAM_45P"
+                <input type="number" name="" id="2" class="EXAM_45P_{{loop.index}}"
+                       value="{{get_score(teach_plan.id,st.id,'EXAM_45P',loop.index).value}}"
                        data-id="{{st.id}}"
                        min="0" max="10"
                        style="width: 60px; padding: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;"/>
                 {% endfor %}
             </td>
             <td>
-                <input type="number" name="" id="3" class="FINAL_EXAM"
+                <input type="number" name="" id="3" class="FINAL_EXAM_{{loop.index}}"
+                       value="{{get_score(teach_plan.id,st.id,'FINAL_EXAM',loop.index).value}}"
                        data-id="{{st.id}}"
                        min="0" max="10"
                        style="width: 60px; padding: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;"/>
             </td>
             <td>
-                <button class="btn btn-danger">Sửa</button>
+                <div class="action" data-id="{{st.id}}">
+                    <button class="btn btn-danger" onclick="editScore({{st.id}},{{teach_plan.id}})">Sửa</button>
+                </div>
             </td>
         </tr>
         {% endfor %}

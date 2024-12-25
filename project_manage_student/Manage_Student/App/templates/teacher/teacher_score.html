@@ -50,3 +50,55 @@ Trang chủ
 <!--bang du lieu-->
 <script src="{{url_for('static',filename='js/teacher_score.js')}}"></script>
 {% endblock %}
+{% extends 'layout/base.html' %}
+<!--title-->
+{% block title %}
+Trang chủ
+{% endblock %}
+<!--content-->
+{% block content %}
+<form action="/teacher/teacher_score" method="post">
+    <h1>Thông tin tìm kiếm</h1>
+    <div class="row mb-3 mt-3">
+        <div class="col-2"></div>
+        <div class="col-3">
+            <select id="class-select" class="form-select class_in_teacher_score"
+                    name="class_id" onchange="get_info_by_class()">
+                <option value="">Chọn lớp học</option>
+                {% if teach_classes %}
+                {% for c in teach_classes %}
+                <option value="{{c.id}}">{{c.name}}</option>
+                {% endfor %}
+                {% endif %}
+            </select>
+        </div>
+        <div class="col-2"></div>
+        <div class="col-3">
+            <select class="form-select " name="subject_id" id="subject-id"></select>
+        </div>
+        <div class="col-2"></div>
+    </div>
+
+    <div class="row mb-3 mt-3">
+        <div class="col-2"></div>
+        <div class="col-3">
+            <select class="form-select " name="semester_id" id="semester-name"></select>
+        </div>
+        <div class="col-2"></div>
+        <div class="col-3">
+             <input class="form-control" type="text" id="semester-year" disabled>
+        </div>
+        <div class="col-2"></div>
+    </div>
+    <div class="row col-12">
+        <div class="col-8"></div>
+        <button type="submit" class="btn btn-info text text-white col-2 input-point mb-3" data-bs-toggle="modal"
+                data-bs-target="#inputModal">
+            <span></span>
+            <span>Tìm kiếm</span>
+        </button>
+    </div>
+</form>
+<!--bang du lieu-->
+<script src="{{url_for('static',filename='js/teacher_score.js')}}"></script>
+{% endblock %}

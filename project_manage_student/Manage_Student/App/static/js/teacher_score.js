@@ -1,3 +1,11 @@
+document.addEventListener('DOMContentLoaded',function(){
+    const input_score = document.querySelectorAll('input[type="number"]');
+    for( ip of input_score ){
+        if(ip.value != '')
+            ip.disabled = true;
+    }
+});
+
 function get_info_by_class(){
 
     const class_ = document.getElementById('class-select');
@@ -47,8 +55,9 @@ function saveScore(teacher_plan_id){
     for( ip of input_score ){
         score.push({
             'student_id':ip.dataset.id,
-            'type_exam':ip.className,
-            'value':ip.value
+            'type_exam':ip.className.slice(0,-2),
+            'value':ip.value,
+            'count_exam':ip.className.slice(-1)
         });
     }
 
@@ -61,10 +70,65 @@ function saveScore(teacher_plan_id){
            'Content-Type' : 'application/json'
         }
     }).then(res => res.json()).then(data =>{
-        console.log(data)
         if (data.status === 200) {
              confirm("Lưu thành công!");
              window.location.href = `/teacher/view_score/${teacher_plan_id}`;
         }
     });
+}
+
+function editScore(student_id,teacher_plan_id){
+    const input_score = document.querySelectorAll(`input[data-id="${student_id}"]`);
+    for( ip of input_score ){
+        ip.disabled = ! ip.disabled;
+    }
+
+    const div_action = document.querySelector(`div.action[data-id="${student_id}"]`);
+    div_action.innerHTML = `
+                <button class="btn btn-primary" onclick="confirm_edit(${student_id},${teacher_plan_id})">Xác nhận</button>
+                <button class="btn btn-danger" onclick="cancel_edit(${student_id},${teacher_plan_id})">Hủy</button>
+    `;
+}
+
+function confirm_edit(student_id,teacher_plan_id){
+    const input_score = document.querySelectorAll(`input[data-id="${student_id}"]`);
+    score=[];
+    for( ip of input_score ){
+        if(ip.value != ''){
+            score.push({
+                'student_id':ip.dataset.id,
+                'type_exam':ip.className.slice(0,-2),
+                'value':ip.value,
+                'count_exam':ip.className.slice(-1)
+             });
+        }
+    }
+    fetch(`/api/teacher_score/${teacher_plan_id}/edit_score`,{
+        method:'put',
+        body:JSON.stringify({
+            'list_score':score
+        }),
+        headers:{
+           'Content-Type' : 'application/json'
+        }
+    }).then(res => res.json()).then(data =>{
+        console.log(data)
+        if (data.status === 200) {
+             confirm("Đã sửa điểm thành công!");
+             window.location.href = `/teacher/teacher_input_score/${teacher_plan_id}`;
+        }
+    });
+}
+
+function cancel_edit(student_id,teacher_plan_id){
+     const input_score = document.querySelectorAll(`input[data-id="${student_id}"]`);
+        for( ip of input_score ){
+            ip.disabled = ! ip.disabled;
+        }
+
+    const div_action = document.querySelector(`div.action[data-id="${student_id}"]`);
+    div_action.innerHTML = `
+               <button class="btn btn-danger" onclick="editScore(${student_id},${teacher_plan_id})">Sửa</button>
+    `;
+    window.location.reload();
 }

@@ -1,4 +1,5 @@
 from App.model import Class,StudentClass
+from App.model import Class, Student, Subject, Semester
 from App import db
 from sqlalchemy import func
 

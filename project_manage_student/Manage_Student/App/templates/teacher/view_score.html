@@ -14,7 +14,7 @@ Trang chủ
         <a href="" class="btn btn-primary">Xuất file excel</a>
     </div>
     <div class="col-3 p-3 text-end">
-        <a href="#" class="btn btn-primary">Xem điểm trung bình</a>
+        <a href="/teacher/view_average_score/{{teach_plan.id}}" class="btn btn-primary">Xem điểm trung bình</a>
     </div>
     <div class="col-3 p-3 text-end">
         <a href="/teacher/teacher_score" class="btn btn-danger">Quay lại</a>
@@ -55,11 +55,10 @@ Trang chủ
     <thead>
     <tr>
         <th>STT</th>
-        <th>Tên Học Sinh</th>
+        <th>Họ Tên</th>
         <th>Điểm 15p</th>
         <th>Điểm 1 Tiết</th>
         <th>Điểm Thi</th>
-        <th class="action"></th>
     </tr>
     </thead>
     <tbody>
@@ -70,28 +69,29 @@ Trang chủ
         <td>{{ st.profile.name }}</td>
         <td>
             {% for i in range(teach_plan.teacher_subjects.subjects.number_of_15p) %}
-            <input type="number" name="" class="EXAM_15P"
+            <input type="text" name="" class="EXAM_15P bg-white border-0 border-end border-dark text-center" disabled
                    data-id="{{st.id}}"
+
+                   value="{{get_score(teach_plan.id,st.id,'EXAM_15P',loop.index).value}}"
                    min="0" max="10"
-                   style="width: 60px; padding: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;"/>
+                   style="width: 60px ; padding: 5px; box-sizing: border-box;"/>
             {% endfor %}
         </td>
         <td>
             {% for i in range(teach_plan.teacher_subjects.subjects.number_of_45p) %}
-            <input type="number" name="" id="2" class="EXAM_45P"
+            <input type="text" name="" id="2" class="EXAM_45P bg-white border-0 border-end border-dark text-center" disabled
+                   value="{{get_score(teach_plan.id,st.id,'EXAM_45P',loop.index).value}}"
                    data-id="{{st.id}}"
                    min="0" max="10"
-                   style="width: 60px; padding: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;"/>
+                   style="width: 60px; padding: 5px; box-sizing: border-box;"/>
             {% endfor %}
         </td>
         <td>
-            <input type="number" name="" id="3" class="FINAL_EXAM"
+            <input type="text" name="" id="3" class="text text-align-center FINAL_EXAM bg-white border-0 border-end border-start border-dark text-center" disabled
                    data-id="{{st.id}}"
+                   value="{{get_score(teach_plan.id,st.id,'FINAL_EXAM',loop.index).value}}"
                    min="0" max="10"
-                   style="width: 60px; padding: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;"/>
-        </td>
-        <td>
-            <button class="btn btn-danger">Sửa</button>
+                   style="width: 60px; padding: 5px "/>
         </td>
     </tr>
     {% endfor %}

@@ -164,7 +164,6 @@ class Score(db.Model):
     type_exam = Column(String(20), nullable=False)
     value = Column(Float, nullable=False)
     count_exam = Column(Integer)
-
     exam_id = Column(Integer, ForeignKey(Exam.id), nullable=False)
 
     __table_args__ = (
@@ -342,23 +341,23 @@ if __name__ == '__main__':
 
         # 10A1
         exams = [
-            Exam(teacher_plan_id=1, student_id=17),
-            Exam(teacher_plan_id=1, student_id=18),
-            Exam(teacher_plan_id=1, student_id=19),
-            Exam(teacher_plan_id=1, student_id=20),
-            Exam(teacher_plan_id=1, student_id=21),
-            Exam(teacher_plan_id=1, student_id=22),
-            Exam(teacher_plan_id=1, student_id=23),
-            Exam(teacher_plan_id=1, student_id=24),
-            Exam(teacher_plan_id=1, student_id=25),
-            Exam(teacher_plan_id=1, student_id=26),
-            Exam(teacher_plan_id=1, student_id=27),
-            Exam(teacher_plan_id=1, student_id=28),
-            Exam(teacher_plan_id=1, student_id=29),
-            Exam(teacher_plan_id=1, student_id=30),
-            Exam(teacher_plan_id=1, student_id=31),
-            Exam(teacher_plan_id=1, student_id=32),
-            Exam(teacher_plan_id=1, student_id=33),
+            Exam(teacher_plan_id=30, student_id=17),
+            Exam(teacher_plan_id=30, student_id=18),
+            Exam(teacher_plan_id=30, student_id=19),
+            Exam(teacher_plan_id=30, student_id=20),
+            Exam(teacher_plan_id=30, student_id=21),
+            Exam(teacher_plan_id=30, student_id=22),
+            Exam(teacher_plan_id=30, student_id=23),
+            Exam(teacher_plan_id=30, student_id=24),
+            Exam(teacher_plan_id=30, student_id=25),
+            Exam(teacher_plan_id=30, student_id=26),
+            Exam(teacher_plan_id=30, student_id=27),
+            Exam(teacher_plan_id=30, student_id=28),
+            Exam(teacher_plan_id=30, student_id=29),
+            Exam(teacher_plan_id=30, student_id=30),
+            Exam(teacher_plan_id=30, student_id=31),
+            Exam(teacher_plan_id=30, student_id=32),
+            Exam(teacher_plan_id=30, student_id=33),
         ]
         # for ex in exams:
         #     db.session.add(ex)

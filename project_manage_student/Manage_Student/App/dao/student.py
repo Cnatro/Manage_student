@@ -1,3 +1,5 @@
+import pdb
+
 from wtforms.validators import email
 
 from App import db
@@ -35,8 +37,10 @@ def create_student(name, birthday, gender, address ,email, number_phone,staff_id
 def del_student(student_id):
     exam_ = exam.get_exam_by_student_id(student_id=student_id)
     if exam_:
-        query_del_score = delete(Score).where(Score.exam_id.__eq__(exam_.id))
+        exam_ids = [ex.id for ex in exam_]
+        query_del_score = delete(Score).where(Score.exam_id.in_(exam_ids))
         query_del_exam = delete(Exam).where(Exam.student_id.__eq__(student_id))
+
 
         db.session.execute(query_del_score)
         db.session.execute(query_del_exam)

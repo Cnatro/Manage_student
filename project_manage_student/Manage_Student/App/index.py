@@ -10,15 +10,18 @@ from App import app, login, ALLOW_EXTENSIONS, utils
 from App.admin import *
 from flask_login import login_user, logout_user, current_user, login_required
 
-from App.model import UserRole
+from App.model import UserRole, SemesterName, Class, Subject, Semester
 from App.decorators import role_only
 
 from App import form
+from App.dao.assignment import handle_action
 from App.dao import auth, student, teacher_subject, exam, semester, teacher_list, regulation, assignment
 
 from App.api.student_class import *
 from App.api.teacher_assignment import *
 from App.api.teacher_score import *
+
+
 
 
 # user login
@@ -248,7 +251,7 @@ def teacher_subject_assignment(grade_value, class_id):
 
 
 # teacher
-@app.route('/teacher/teacher_score', methods=['GET', 'POST'])
+@app.route('/teacher/teacher_score',methods=['GET','POST'])
 @role_only([UserRole.TEACHER])
 def teacher_score():
     teach_classes = teacher_list.get_class_by_teacher_id(current_user.id)
@@ -257,32 +260,58 @@ def teacher_score():
         semester_id = request.form.get('semester_id')
         subject_id = request.form.get('subject_id')
         teach_plan = teacher_list.get_plan(class_id=class_id,
-                                           semester_id=semester_id,
-                                           subject_id=subject_id,
-                                           teacher_id=current_user.id)
+                                     semester_id=semester_id,
+                                     subject_id=subject_id,
+                                     teacher_id=current_user.id)
 
-        return redirect(url_for('view_score', teacher_plan_id=teach_plan.id))
+        return redirect(url_for('view_score',teacher_plan_id=teach_plan.id))
 
     return render_template('teacher/teacher_score.html',
                            user_page='teacher',
                            teach_classes=teach_classes)
 
 
-@app.route('/teacher/teacher_input_score/<int:teacher_plan_id>', methods=['GET', 'POST'])
+@app.route('/teacher/teacher_input_score/<int:teacher_plan_id>',methods=['GET','POST'])
 def input_score(teacher_plan_id):
     teach_plan = teacher_list.get_teaching_plan_by_id(teacher_plan_id=teacher_plan_id)
-    # print(teach_plan.classes.student_class)
     return render_template('teacher/teacher_input_score.html',
                            user_page='teacher',
-                           teach_plan=teach_plan)
+                           teach_plan=teach_plan,
+                           get_score=exam.get_score_student)
 
 
 @app.route('/teacher/view_score/<int:teacher_plan_id>')
 def view_score(teacher_plan_id):
     teach_plan = teacher_list.get_teaching_plan_by_id(teacher_plan_id=teacher_plan_id)
-    return render_template('teacher/view_score.html', user_page='teacher',
+    return render_template('teacher/view_score.html',user_page='teacher',
                            teach_plan=teach_plan,
                            get_score=exam.get_score_student)
+
+
+@app.route('/teacher/view_average_score/<int:teacher_plan_id>')
+def view_average_score(teacher_plan_id):
+    # Lấy kế hoạch giảng dạy
+    teach_plan = teacher_list.get_teaching_plan_by_id(teacher_plan_id=teacher_plan_id)
+
+    # Khởi tạo điểm rỗng cho mỗi học sinh
+    student_scores = teacher_list.init_student_scores(teach_plan)
+
+    # Lấy danh sách học kỳ từ năm học
+    semesters = teacher_list.get_semesters_by_year(teach_plan.semester.year)
+
+    # Xử lý điểm trung bình cho từng học kỳ
+    for semester in semesters:
+        teacher_list.process_scores(semester, teach_plan, student_scores)
+
+    # Render template
+    return render_template(
+        'teacher/view_average_score.html',
+        teach_plan=teach_plan,
+        user_page='teacher',
+        student_scores=student_scores
+    )
+
+
 
 
 if __name__ == '__main__':

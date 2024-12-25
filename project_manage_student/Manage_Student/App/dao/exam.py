@@ -38,13 +38,15 @@ def get_exam_by_student_id(teacher_plan_id=None,student_id=None):
         return Exam.query.filter(Exam.teacher_plan_id.__eq__(teacher_plan_id),
                           Exam.student_id.__eq__(student_id)).first()
 
-    return Exam.query.filter(Exam.student_id.__eq__(student_id)).first()
+    return Exam.query.filter(Exam.student_id.__eq__(student_id)).all()
 
 
-def get_score_student(teacher_plan_id,student_id,type_exam):
+def get_score_student(teacher_plan_id,student_id,type_exam,count_exam):
     return (db.session.query(Score)
             .join(Exam, Exam.id.__eq__(Score.exam_id))
             .filter(Exam.teacher_plan_id.__eq__(teacher_plan_id),
                     Exam.student_id.__eq__(student_id),
-                    Score.type_exam.__eq__(type_exam))
+                    Score.type_exam.__eq__(type_exam),
+                    Score.count_exam.__eq__(count_exam))
             .first())
+
