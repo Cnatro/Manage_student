@@ -3,53 +3,60 @@
 {% block body %}
 
 {% if current_user.is_authenticated %}
-    <h1 class="text-info mt-1">CHÀO MỪNG ĐẾN VỚI TRANG QUẢN TRỊ!</h1>
-    <h2 class="text-danger">Chào {{ current_user.username }}.</h2>
-
-    <!-- Các thông tin -->
-    <div class="container mt-4">
-        <div class="card p-4 mb-4">
-            <h5 class="mb-3">Các thông tin</h5>
-            <div class="bg-light" style="height: 200px;"></div> <!-- Placeholder for content -->
-        </div>
-
-        <!-- Giới thiệu các chức năng cơ bản -->
-        <div class="text-center">
-            <h6 class="mb-3">giới thiệu các chức năng cơ bản</h6>
-            <div class="d-flex justify-content-center gap-3">
-                <!-- Quản lý báo cáo -->
-                <button class="btn btn-outline-secondary d-flex flex-column align-items-center">
-                    <i class="bi bi-list-task" style="font-size: 24px;"></i>
-                    <span class="mt-1">Quản lý báo cáo</span>
-                </button>
-                <!-- Thiết lập quyền -->
-                <button class="btn btn-outline-secondary d-flex flex-column align-items-center">
-                    <i class="bi bi-gear" style="font-size: 24px;"></i>
-                    <span class="mt-1">Thiết lập quyền</span>
-                </button>
-                <!-- Đăng xuất -->
-                <button class="btn btn-outline-secondary d-flex flex-column align-items-center">
-                    <i class="bi bi-box-arrow-right" style="font-size: 24px;"></i>
-                    <span class="mt-1">Đăng xuất</span>
-                </button>
-            </div>
+<h1 class="text-info mt-1">CHÀO MỪNG ĐẾN VỚI TRANG QUẢN TRỊ!</h1>
+<h2 class="text-danger">Chào {{ current_user.username }}.</h2>
+<!-- Các thông tin -->
+<div class="container mt-4">
+    <div class="card p-4 mb-4">
+        <h5 class="mb-3">Các thông tin</h5>
+        <div class="bg-light" style="height: 200px;"></div> <!-- Placeholder for content -->
+    </div>
+    <!-- Giới thiệu các chức năng cơ bản -->
+    <div class="text-center">
+        <h6 class="mb-3">giới thiệu các chức năng cơ bản</h6>
+        <div class="d-flex justify-content-center gap-3">
+            <!-- Quản lý báo cáo -->
+            <button class="btn btn-outline-secondary d-flex flex-column align-items-center">
+                <i class="bi bi-list-task" style="font-size: 24px;"></i>
+                <span class="mt-1">Quản lý báo cáo</span>
+            </button>
+            <!-- Thiết lập quyền -->
+            <button class="btn btn-outline-secondary d-flex flex-column align-items-center">
+                <i class="bi bi-gear" style="font-size: 24px;"></i>
+                <span class="mt-1">Thiết lập quyền</span>
+            </button>
+            <!-- Đăng xuất -->
+            <button class="btn btn-outline-secondary d-flex flex-column align-items-center">
+                <i class="bi bi-box-arrow-right" style="font-size: 24px;"></i>
+                <span class="mt-1">Đăng xuất</span>
+            </button>
         </div>
     </div>
-
+</div>
 {% else %}
-    <h1 class="text-center text-info mt-1">ĐĂNG NHẬP QUẢN TRỊ</h1>
-    <form method="post" action="/login-admin">
-        <div class="form-floating mb-3 mt-3">
-            <input type="text" class="form-control" id="username" placeholder="Tên đăng nhập" name="username" />
-            <label for="username">Tên đăng nhập</label>
-        </div>
-
-        <div class="form-floating mt-3 mb-3">
-            <input type="password" class="form-control" id="pwd" placeholder="Mật khẩu" name="password" />
-            <label for="pwd">Mật khẩu</label>
-        </div>
-        <button type="submit" class="btn btn-primary">Đăng nhập</button>
-    </form>
+<h1 class="text-center text-info mt-1">ĐĂNG NHẬP QUẢN TRỊ</h1>
+<form action="{{ url_for('login_admin_process') }}" method="post" class="pt-3 ps-4 pe-4 pb-5 mb-5">
+    <!-- Thêm  CSRF token -->
+    {{ form_login.csrf_token }}
+    <div class="mb-3 mt-3">
+        {{ form_login.username.label(class_='form-label') }}
+        {{ form_login.username }}
+        {% for error in form_login.username.errors %}
+        <span class="d-block alert alert-danger">{{ error }}</span>
+        {% endfor %}
+    </div>
+    <div class="mb-3 position-relative">
+        {{ form_login.password.label(class_='form-label') }}
+        {{ form_login.password }}
+        {% for error in form_login.password.errors %}
+        <span class="d-block alert alert-danger">{{ error }}</span>
+        {% endfor %}
+    </div>
+    <button type="submit" class="btn btn-primary form-control" name="btn-login">Đăng nhập</button>
+    {% if mse %}
+    <span class="d-block alert alert-danger">{{ mse }}</span>
+    {% endif %}
+</form>
 {% endif %}
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">

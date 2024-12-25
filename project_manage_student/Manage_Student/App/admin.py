@@ -1,17 +1,13 @@
+import pdb
 
-from flask_admin import Admin, BaseView, expose
+from flask_admin import Admin, BaseView, expose, AdminIndexView
 from flask_admin.contrib.sqla.fields import QuerySelectField
-from sqlalchemy import true
 from wtforms import validators
 from wtforms.fields.numeric import IntegerField
 from wtforms.fields.simple import StringField
-from wtforms import ValidationError
-
-from App import app, db
-# from flask_admin import form
 from flask_admin.contrib.sqla import ModelView
 from flask_login import current_user, logout_user
-from flask import redirect, jsonify, request
+from flask import redirect, jsonify, request, url_for
 from App.model import Student, Class, Subject, UserRole, Grade, User, Regulation, TeacherSubject, Profile, Score, \
     Semester
 from flask_admin.form import Select2Field
@@ -19,11 +15,20 @@ from flask_admin.form.widgets import Select2Widget
 from App.dao.stats import get_subjects, get_semesters, get_years, get_grades, get_subjects_by_grade, \
     get_report_data  # Nhập các hàm DAO
 from App.api.admin import *
+from App import form
 
 
+class MyAdminView(AdminIndexView):
+    @expose('/')
+    def index(self):
+        form_login = form.loginForm()
+        return self.render('admin/index.html', form_login=form_login)
 
 
-admin = Admin(app=app, name='Admin', template_mode='bootstrap4')
+class AdminView(ModelView):
+    def is_accessible(self):
+        return current_user.is_authenticated and current_user.user_role.__eq__(UserRole.ADMIN)
+
 
 class AuthenticatedView(BaseView):
     def is_accessible(self):
@@ -34,27 +39,24 @@ class LogoutView(AuthenticatedView):
     @expose('/')
     def index(self):
         logout_user()
-        return redirect('/login')
-
-
-class AdminView(ModelView):
-    def is_accessible(self):
-        return current_user.is_authenticated and current_user.user_role.__eq__(UserRole.ADMIN)
+        return redirect('/admin')
 
 
 class ManageClassView(AdminView):
-    def _teacher_name(view, context, model, name):
+    def teacher_name(view, context, model, name):
         return model.user.profile.name  # Lấy tên giáo viên từ quan hệ profile
 
+    def grade_name(view, context, model, name):
+        return model.grade.name
 
     column_list = ['id', 'name', 'grade', 'quantity_student', 'teacher_name']
-    form_columns = ['name', 'grade', 'quantity_student', 'teacher_id']
+    form_columns = ['name', 'quantity_student', 'grade', 'teacher_id']
     column_formatters = {
-        'teacher_name': _teacher_name,  # Định dạng cột teacher_name
+        'teacher_name': teacher_name,  # Định dạng cột teacher_name
+        'grade': grade_name
     }
-
     # Thêm các thuộc tính lọc cho các cột
-    column_filters = ['name', 'grade', 'quantity_student', 'teacher_id']
+    column_filters = ['name', 'quantity_student', 'grade', 'teacher_id']
 
     # Thêm các thuộc tính sắp xếp cho các cột
     column_sortable_list = ['name', 'grade', 'quantity_student', 'teacher_id']
@@ -75,9 +77,8 @@ class ManageClassView(AdminView):
             widget=Select2Widget(),  # Hiển thị đẹp hơn
             allow_blank=True
         ),
-        'quantity_student': IntegerField('Quantity Student', default=0)  # Đặt giá trị mặc định
+        'quantity_student': IntegerField('Quantity Student', default=0),  # Đặt giá trị mặc định
     }
-
 
     def on_model_change(self, form, model, is_created):
         # Kiểm tra nếu teacher_id là đối tượng User
@@ -119,8 +120,6 @@ class ManageClassView(AdminView):
 
 
 class ManageSubjectView(AdminView):
-
-
     model = Subject  # Áp dụng cho model Subject
     # Hiển thị các cột trong giao diện danh sách
     column_list = ['id', 'name', 'grade', 'number_of_15p', 'number_of_45p']
@@ -173,7 +172,6 @@ class ManageSubjectView(AdminView):
         super().on_model_change(form, model, is_created)
 
 
-
 class StatsView(AuthenticatedView):
     @expose('/')
     def index(self):
@@ -188,8 +186,7 @@ class StatsView(AuthenticatedView):
             if subject.name not in seen_subject_names:
                 unique_subjects.append(subject)
                 seen_subject_names.add(subject.name)
-
-        return self.render('admin/test.html', subjects=unique_subjects, semesters=semesters, years=years)
+        return self.render('admin/stats.html', subjects=unique_subjects, semesters=semesters, years=years)
 
     @expose('/report_data')
     def report_data(self):
@@ -203,6 +200,7 @@ class StatsView(AuthenticatedView):
 
         # Return the data as JSON
         return jsonify(report_data)
+
 
 class RulesView(AdminView):
     column_list = ['id', 'type', 'regulation_name', 'min', 'max']
@@ -261,10 +259,6 @@ class RulesView(AdminView):
         super().on_model_change(form, model, is_created)
 
 
-
-
-
-
 class ManageTeacherAndStaffView(AdminView):
     model = User
     default_view = 'list'
@@ -297,6 +291,15 @@ class ManageTeacherAndStaffView(AdminView):
             description="Role của người dùng"
         ),
     }
+    column_labels = {
+        'id': 'Mã',
+        'username': 'Tên đăng nhập',
+        'user_role': 'Vai trò',
+        'profile.name': 'Họ và tên',
+        'profile.email': 'Email',
+        'profile.number_phone': 'Số điện thoại',
+        'profile.address': 'Địa chỉ'
+    }
 
     def on_model_change(self, form, model, is_created):
         # Nếu đang tạo mới, tự động tạo Profile
@@ -309,9 +312,10 @@ class ManageTeacherAndStaffView(AdminView):
         super().on_model_change(form, model, is_created)
 
 
+admin = Admin(app=app, name='Admin', template_mode='bootstrap4', index_view=MyAdminView())
 admin.add_view(ManageClassView(Class, db.session, name="Quản Lý Lớp Học"))
 admin.add_view(ManageSubjectView(Subject, db.session, name="Quản lý môn học"))
-admin.add_view(RulesView(Regulation,db.session,name="Quy định"))
+admin.add_view(RulesView(Regulation, db.session, name="Quy định"))
 admin.add_view(ManageTeacherAndStaffView(User, db.session, name="Quản lý Nhân sự"))
 admin.add_view(StatsView(name="Thống kê điểm"))
 admin.add_view(LogoutView(name='Đăng Xuất'))

@@ -1,7 +1,7 @@
 from App.model import Semester
 
-# def get_all_semester():
-#     return Semester.query.order_by(Semester.id.desc()).all()
+def get_all_semester():
+    return Semester.query.order_by(Semester.id.desc()).all()
 
 
 # def unique_semester(semesters):

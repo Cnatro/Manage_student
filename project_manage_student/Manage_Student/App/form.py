@@ -16,7 +16,6 @@ def validate_birthday(form,field):
 
 
 
-
 class loginForm(FlaskForm):
     username = StringField("Tên đăng nhập",
                            validators=[data_required(message="Tên đăng nhập không được bỏ trống"),

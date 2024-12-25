@@ -4,6 +4,8 @@ import pandas
 from flask import render_template, url_for, redirect
 import random
 
+from wtforms.validators import length
+
 from App import app, login, ALLOW_EXTENSIONS, utils
 from App.admin import *
 from flask_login import login_user, logout_user, current_user, login_required
@@ -12,7 +14,7 @@ from App.model import UserRole
 from App.decorators import role_only
 
 from App import form
-from App.dao import auth, student, teacher_subject, exam, semester, teacher_list,regulation,assignment
+from App.dao import auth, student, teacher_subject, exam, semester, teacher_list, regulation, assignment
 
 from App.api.student_class import *
 from App.api.teacher_assignment import *
@@ -49,6 +51,18 @@ def login_process():
             return redirect(url_for('index', user_page=user_page))
         mse = "Tên đăng nhập hoặc mật khẩu không chính xác"
     return render_template('login.html', form_login=form_login, mse=mse)
+
+
+@app.route('/login-admin', methods=['POST'])
+def login_admin_process():
+    if request.method == "POST":
+        username = request.form.get('username')
+        password = request.form.get('password')
+        user_login = auth.auth_user(username=username, password=password,role=UserRole.ADMIN)
+        # pdb.set_trace()
+        if user_login:
+            login_user(user_login)
+    return redirect('/admin')
 
 
 @app.route("/logout")
@@ -113,7 +127,7 @@ def upload_by_excel():
             student.add_list_student(list_data=data, staff_id=current_user.id)
             # phân lớp
             quantity_student_allow = regulation.get_regulation_by_name('Quantity_student').max
-            quantity_student_less = random.randint(quantity_student_allow - 5,quantity_student_allow)
+            quantity_student_less = random.randint(quantity_student_allow - 5, quantity_student_allow)
             student_class.auto_create_class(quantity_student_less)
         except Exception as e:
             return jsonify({'error': str(e)}), 500
@@ -234,7 +248,7 @@ def teacher_subject_assignment(grade_value, class_id):
 
 
 # teacher
-@app.route('/teacher/teacher_score',methods=['GET','POST'])
+@app.route('/teacher/teacher_score', methods=['GET', 'POST'])
 @role_only([UserRole.TEACHER])
 def teacher_score():
     teach_classes = teacher_list.get_class_by_teacher_id(current_user.id)
@@ -243,18 +257,18 @@ def teacher_score():
         semester_id = request.form.get('semester_id')
         subject_id = request.form.get('subject_id')
         teach_plan = teacher_list.get_plan(class_id=class_id,
-                                     semester_id=semester_id,
-                                     subject_id=subject_id,
-                                     teacher_id=current_user.id)
+                                           semester_id=semester_id,
+                                           subject_id=subject_id,
+                                           teacher_id=current_user.id)
 
-        return redirect(url_for('view_score',teacher_plan_id=teach_plan.id))
+        return redirect(url_for('view_score', teacher_plan_id=teach_plan.id))
 
     return render_template('teacher/teacher_score.html',
                            user_page='teacher',
                            teach_classes=teach_classes)
 
 
-@app.route('/teacher/teacher_input_score/<int:teacher_plan_id>',methods=['GET','POST'])
+@app.route('/teacher/teacher_input_score/<int:teacher_plan_id>', methods=['GET', 'POST'])
 def input_score(teacher_plan_id):
     teach_plan = teacher_list.get_teaching_plan_by_id(teacher_plan_id=teacher_plan_id)
     # print(teach_plan.classes.student_class)
@@ -266,7 +280,7 @@ def input_score(teacher_plan_id):
 @app.route('/teacher/view_score/<int:teacher_plan_id>')
 def view_score(teacher_plan_id):
     teach_plan = teacher_list.get_teaching_plan_by_id(teacher_plan_id=teacher_plan_id)
-    return render_template('teacher/view_score.html',user_page='teacher',
+    return render_template('teacher/view_score.html', user_page='teacher',
                            teach_plan=teach_plan,
                            get_score=exam.get_score_student)
 

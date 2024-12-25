@@ -15,7 +15,6 @@ class UserRole(enum.Enum):
 
 
 class Grade(enum.Enum):
-    # name = value
     K10 = 10
     K11 = 11
     K12 = 12
@@ -37,6 +36,7 @@ class Profile(db.Model):
     number_phone = Column(String(10), unique=True)
     def __str__(self):
         return self.name
+
 
 class User(db.Model, UserMixin):
     id = Column(Integer, ForeignKey(Profile.id), primary_key=True)
@@ -63,6 +63,7 @@ class User(db.Model, UserMixin):
     def get_staffs_query(cls):
         return cls.query.filter_by(user_role=UserRole.STAFF)
 
+
 class Student(db.Model):
     id = Column(Integer, ForeignKey(Profile.id), primary_key=True)
     status_payment = Column(Boolean, default=False)
@@ -82,6 +83,7 @@ class Class(db.Model):
     def __str__(self):
         return self.name
 
+
 class Subject(db.Model):
     id = Column(Integer, autoincrement=True, primary_key=True)
     name = Column(String(50))
@@ -96,6 +98,7 @@ class Semester(db.Model):
     year = Column(Integer,default=datetime.now().year)
     def __str__(self):
         return self.name.name
+
 
 class StudentClass(db.Model):
     id = Column(Integer, autoincrement=True, primary_key=True)
@@ -120,6 +123,7 @@ class StaffClass(db.Model):
     def get_staffs_query(cls):
         return cls.query.filter_by(user_role=UserRole.STAFF)
 
+
 class TeacherSubject(db.Model):
     id = Column(Integer, autoincrement=True, primary_key=True)
 
@@ -130,6 +134,7 @@ class TeacherSubject(db.Model):
     subjects = relationship('Subject', backref='teacher_subject', lazy=True)
     def __str__(self):
         return self.subject.name
+
 
 class TeacherPlan(db.Model):
     id = Column(Integer, autoincrement=True, primary_key=True)
@@ -214,8 +219,8 @@ if __name__ == '__main__':
         p14 = Profile(name="Giáo viên văn 11 12", email="GV14@gmail.com")
         p15 = Profile(name="Giáo viên anh 11 12", email="GV15@gmail.com")
 
-        db.session.add_all([p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15])
-        db.session.commit()
+        # db.session.add_all([p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15])
+        # db.session.commit()
 
         teacher4 = User(id=p4.id, username="Gv4", password=str(hashlib.md5('Gv4123@'.encode('utf-8')).hexdigest()),
                         user_role=UserRole.TEACHER)
