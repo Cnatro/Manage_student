@@ -10,11 +10,12 @@ Trang chủ
     <div class="col-3 p-3">
         <a href="/teacher/teacher_input_score/{{teach_plan.id}}" class="btn btn-primary">Nhập điểm</a>
     </div>
+
     <div class="col-3 p-3">
-        <a href="" class="btn btn-primary">Xuất file excel</a>
-    </div>
-    <div class="col-3 p-3 text-end">
         <a href="/teacher/view_average_score/{{teach_plan.id}}" class="btn btn-primary">Xem điểm trung bình</a>
+    </div>
+     <div class="col-3 p-3">
+       <a href="/teacher/view_score/{{teach_plan.id}}?export=excel" class="btn btn-primary">Xuất file excel</a>
     </div>
     <div class="col-3 p-3 text-end">
         <a href="/teacher/teacher_score" class="btn btn-danger">Quay lại</a>

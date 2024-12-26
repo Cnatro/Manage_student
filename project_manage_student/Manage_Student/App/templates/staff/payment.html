@@ -28,6 +28,9 @@ Trang thanh toán học phí
             </tbody>
         </table>
         <button type="submit" class="btn btn-outline-primary">Thanh toán</button>
+        {% if msc %}
+        <span class="alert alert-danger">{{msc}}</span>
+        {% endif %}
     </form>
 </div>
 <script src="{{url_for('static',filename='js/manage_class.js')}}"></script>

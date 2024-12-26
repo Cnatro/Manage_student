@@ -21,6 +21,9 @@ from App.dao import auth, student, teacher_subject, exam, semester, teacher_list
 from App.api.student_class import *
 from App.api.teacher_assignment import *
 from App.api.teacher_score import *
+from flask import render_template, request, send_file
+import io
+from datetime import datetime
 
 
 # user login
@@ -140,12 +143,17 @@ def upload_by_excel():
 
 @app.route('/staff/payment', methods=['GET', 'POST'])
 def payment():
+    msc = ''
     if request.method == 'POST':
         student_id = request.form.get('student_id')
-        vnpay_payment_url = utils.pay_with_vnpay(student_id=student_id)
-
-        return redirect(vnpay_payment_url)
-    return render_template('staff/payment.html', user_page=app.config['USER_STAFF'])
+        if student_class.get_student_by_id(student_id).students.status_payment == 0:
+            vnpay_payment_url = utils.pay_with_vnpay(student_id=student_id)
+            return redirect(vnpay_payment_url)
+        else:
+            msc = 'Học sinh này đã thanh toán học phí!!!'
+    return render_template('staff/payment.html',
+                           user_page=app.config['USER_STAFF'],
+                           msc=msc)
 
 
 @app.route('/staff/vnpay_return')
@@ -158,6 +166,8 @@ def vnpay_return():
     vnp_BankCode = request.args.get('vnp_BankCode')
     student_id = int(vnp_TxnRef.split('-')[0])
 
+    mail = utils.sent_mail(student_id=student_id,price=price)
+    # pdb.set_trace()
     v = tuition_fee.add_vnPay_history(transaction_id=transaction_id,
                                       price_pay=price,
                                       create_day=request.args.get('vnp_PayDate'),
@@ -319,23 +329,38 @@ def input_score(teacher_plan_id):
 @app.route('/teacher/view_score/<int:teacher_plan_id>')
 def view_score(teacher_plan_id):
     teach_plan = teacher_list.get_teaching_plan_by_id(teacher_plan_id=teacher_plan_id)
-    return render_template('teacher/view_score.html', user_page='teacher',
+
+    if request.args.get('export') == 'excel':
+        wb = teacher_list.export_score(teach_plan, exam.get_score_student)
+
+        #Tạo tên file
+        filename = f"bang_diem_{teach_plan.classes.name}_{teach_plan.teacher_subjects.subjects.name}_{teach_plan.semester.name.name}_{teach_plan.semester.year}.xlsx"
+
+        excel_file = io.BytesIO()
+        wb.save(excel_file)
+        excel_file.seek(0)
+
+        return send_file(
+            excel_file,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            as_attachment=True,
+            download_name=filename
+        )
+
+    return render_template('teacher/view_score.html',
+                           user_page='teacher',
                            teach_plan=teach_plan,
                            get_score=exam.get_score_student)
 
 
 @app.route('/teacher/view_average_score/<int:teacher_plan_id>')
 def view_average_score(teacher_plan_id):
-    # Lấy kế hoạch giảng dạy
     teach_plan = teacher_list.get_teaching_plan_by_id(teacher_plan_id=teacher_plan_id)
 
-    # Khởi tạo điểm rỗng cho mỗi học sinh
     student_scores = teacher_list.init_student_scores(teach_plan)
 
-    # Lấy danh sách học kỳ từ năm học
     semesters = teacher_list.get_semesters_by_year(teach_plan.semester.year)
 
-    # Xử lý điểm trung bình cho từng học kỳ
     for semester in semesters:
         teacher_list.process_scores(semester, teach_plan, student_scores)
 

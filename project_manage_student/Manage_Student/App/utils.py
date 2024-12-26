@@ -74,3 +74,23 @@ def pay_with_vnpay(student_id):
     vnpay_payment_url = vnp.get_payment_url(vnpay_payment_url=app.config['VNP_URL'],
                                             secret_key=app.config['VNP_HASH_SECRET'])
     return vnpay_payment_url
+
+
+def sent_mail(student_id,price):
+    try:
+        from flask_mail import Message
+        from App import mail
+
+        student = student_class.get_student_by_id(student_id).students
+        message = Message('Phòng quản lí và đào tạo Trường THPT NNT', sender='NNT@gmail.com', recipients=[student.profile.email])
+        message.body = f'Chào {student.profile.name} .Bạn đang thanh toán học phí thành công. Học phí : {price} !!!'
+        mail.send(message)
+        return "Gửi thành công"
+    except Exception as e:
+        return str(e)
+
+
+if __name__=='__main__':
+    with app.app_context():
+        sent_mail(student_id=88,price=200000)
+

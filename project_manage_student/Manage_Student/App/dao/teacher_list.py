@@ -4,6 +4,10 @@ from itertools import groupby
 from App.model import TeacherPlan, Class, Subject, TeacherSubject, Semester,Profile, Student, Score, Exam, StudentClass
 from App import db, app
 from sqlalchemy.sql import func,case
+from openpyxl import Workbook
+from openpyxl.styles import Alignment, Border, Side, Font, PatternFill
+from datetime import datetime
+
 
 def get_class_by_teacher_id(teacher_id):
     return (db.session.query(Class)
@@ -86,7 +90,6 @@ def get_semesters_by_year(year):
             .all())
 
 def init_student_scores(teach_plan):
-    """Khởi tạo dictionary lưu điểm cho học sinh."""
     student_scores = {}
     for student_class in teach_plan.classes.student_class:
         student_scores[student_class.students.id] = {'HK1': None, 'HK2': None}
@@ -94,7 +97,6 @@ def init_student_scores(teach_plan):
 
 
 def update_scores(semester, averages, student_final_check, student_scores):
-    """Cập nhật điểm trung bình cho từng học sinh."""
     for student_id, name, avg_score in averages:
         if student_id in student_final_check and avg_score is not None:
             semester_name = f"{semester.name.name}"
@@ -102,8 +104,6 @@ def update_scores(semester, averages, student_final_check, student_scores):
 
 
 def process_scores(semester, teach_plan, student_scores):
-    """Xử lý điểm trung bình cho từng học kỳ."""
-    # Lấy danh sách học sinh có điểm final exam
     students_final = get_final_exam_scores(
         semester.id,
         teach_plan.teacher_subjects.subject_id,
@@ -111,7 +111,6 @@ def process_scores(semester, teach_plan, student_scores):
     )
     student_final_check = {student.id for student in students_final}
 
-    # Nếu có học sinh có điểm final exam, tính điểm trung bình
     if student_final_check:
         averages = average_score(
             semester.id,
@@ -120,23 +119,83 @@ def process_scores(semester, teach_plan, student_scores):
         )
         update_scores(semester, averages, student_final_check, student_scores)
 
-def get_average_score_for_excel(students):
-    data = {}
-    if students:
-        data =[
-            {
-                'Fullname':st.student.profile.name,
-                'Class': st.teacher_plans.classes.name,
-            }
-            for st in students
-        ]
 
-        score =[
-            {
+def export_score(teach_plan, get_score):
+    wb = Workbook()
+    ws = wb.active
+    thin_border = Border(left=Side(style='thin'),
+                         right=Side(style='thin'),
+                         top=Side(style='thin'),
+                         bottom=Side(style='thin'))
 
-            }
-        ]
-    return data
+    ws.merge_cells('A1:E1')
+    ws['A1'] = 'BẢNG ĐIỂM MÔN HỌC'
+    ws['A1'].font = Font(bold=True, size=14)
+    ws['A1'].alignment = Alignment(horizontal='center')
+
+    ws['A2'] = f'Lớp: {teach_plan.classes.name}'
+    ws['D2'] = f'Môn: {teach_plan.teacher_subjects.subjects.name}'
+    ws.merge_cells('A2:B2')
+    ws.merge_cells('D2:E2')
+
+    ws['A3'] = f'Học kỳ: {teach_plan.semester.name.name}'
+    ws['D3'] = f'Năm học: {teach_plan.semester.year}'
+    ws.merge_cells('A3:B3')
+    ws.merge_cells('D3:E3')
+
+    headers = ['STT', 'Họ Tên', 'Điểm 15p', 'Điểm 1 Tiết', 'Điểm Thi']
+    for col, header in enumerate(headers, 1):
+        cell = ws.cell(row=4, column=col)
+        cell.value = header
+        cell.font = Font(bold=True)
+        cell.alignment = Alignment(horizontal='center')
+        cell.border = thin_border
+
+    current_row = 5 #Bắt đầu từ dòng 5
+    for idx, student_class in enumerate(teach_plan.classes.student_class, 1):
+        st = student_class.students
+
+        ws.cell(row=current_row, column=1, value=idx)
+        ws.cell(row=current_row, column=2, value=st.profile.name)
+
+        diem_15p = []
+        for i in range(teach_plan.teacher_subjects.subjects.number_of_15p):
+            score = get_score(teach_plan.id, st.id, 'EXAM_15P', i + 1)
+            if score and score.value is not None:
+                diem_15p.append(str(score.value))
+        ws.cell(row=current_row, column=3, value=' | '.join(diem_15p))
+
+        diem_45p = []
+        for i in range(teach_plan.teacher_subjects.subjects.number_of_45p):
+            score = get_score(teach_plan.id, st.id, 'EXAM_45P', i + 1)
+            if score and score.value is not None:
+                diem_45p.append(str(score.value))
+        ws.cell(row=current_row, column=4, value=' | '.join(diem_45p))
+
+        score_final = get_score(teach_plan.id, st.id, 'FINAL_EXAM', 1)
+        if score_final and score_final.value is not None:
+            ws.cell(row=current_row, column=5, value=score_final.value)
+
+        #Thêm viền và căn giữa cho tất cả các ô
+        for col in range(1, 6):
+            cell = ws.cell(row=current_row, column=col)
+            cell.border = thin_border
+            cell.alignment = Alignment(horizontal='center')
+
+        current_row += 1
+
+    column_widths = {
+        'A': 8,
+        'B': 30,
+        'C': 25,
+        'D': 25,
+        'E': 15
+    }
+
+    for col, width in column_widths.items():
+        ws.column_dimensions[col].width = width
+
+    return wb
 
 
 
