@@ -1,0 +1,27 @@
+{% extends 'layout/base.html' %}
+
+{% block title %}
+Trang thanh toán học phí
+{% endblock %}
+
+{% block content %}
+<div class="mt-4">
+    <a href="{{url_for('payment')}}" class="btn btn-danger">Quay lại</a>
+    <h1 class="mt-5 text-center text-uppercase text-success">KẾT QUẢ THANH TOÁN</h1>
+    <div class="card m-5 container">
+        <div class="card-body">
+            <p class="card-text">Mã thanh toán: {{ transaction_id }} </p>
+            <p class="card-text">Mã ngân hàng: {{ vnp_BankCode }}</p>
+            <p class="card-text">Số hóa đơn: {{ vnp_TxnRef }}</p>
+<!--            <p class="card-text">Số đơn hàng: #MN{{ vnp_BankCode }}</p>-->
+            <p class="card-text">Số tiền: {{ "{:,.0f}".format(price / 100) }} VND</p>
+            {% if msc %}
+            <p class="card-text">Kết quả thanh toán: <span class="text-success">{{ msc }}</span></p>
+            {% else %}
+             <p class="card-text">Kết quả thanh toán: <span class="text-danger">THANH TOÁN THẤT BẠI</span></p>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}

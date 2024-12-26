@@ -1,0 +1,48 @@
+{% extends 'layout/base.html' %}
+
+{% block title %}
+Trang thanh toán học phí
+{% endblock %}
+
+{% block content %}
+<div class="mt-3">
+    <h1>Tìm kiếm học sinh cần thanh toán:</h1>
+    <form action="{{url_for('payment')}}" method="post">
+        <div class="mb-2">
+            <input type="hidden" name="" id="class_">
+            <input class="form-check-input mt-2 mb-2" type="hidden" id="parent-check"/>
+             <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"
+                       id="search">
+        </div>
+        <table class="table text-center table-bordered border-primary" id="list-student">
+            <thead>
+            <tr>
+                <th scope="col" class="border-box">STT</th>
+                <th scope="col">Họ và tên</th>
+                <th scope="col">Giới tính</th>
+                <th scope="col">action</th>
+            </tr>
+            </thead>
+            <tbody class="table-hover show-student">
+            <!--   Dữ liệu sẽ được đổ ra khi chọn grade và lớp -->
+            </tbody>
+        </table>
+        <button type="submit" class="btn btn-outline-primary">Thanh toán</button>
+    </form>
+</div>
+<script src="{{url_for('static',filename='js/manage_class.js')}}"></script>
+<script>
+    window.onload = function(){
+        const search = document.getElementById('search');
+        search.addEventListener('input',function(){
+                if(search.value != ''){
+                    search_name_student(['student_name','gender'],true);
+                }else{
+                   let $items= $('.show-student');
+                   $items[0].innerHTML = "";
+                }
+        });
+
+    }
+</script>
+{% endblock %}

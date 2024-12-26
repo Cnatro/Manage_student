@@ -1,7 +1,9 @@
-from flask import Flask, send_file
+from datetime import datetime
+from flask import Flask, send_file,url_for
 import pandas as pd
 import os
-from App import form
+from App import vnpay,app
+from App.dao import student_class,tuition_fee
 
 
 def export_excel(data,year_learn):
@@ -51,3 +53,24 @@ def export_excel_average_score(data,year_learn,class_name,subject_name):
         download_name="export.xlsx",
         mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
+
+def pay_with_vnpay(student_id):
+    price_pay = tuition_fee.get_fee_by_grade(student_class.get_student_by_id(student_id).class_.grade)
+    vnp = vnpay.VNPAY()
+    vnp.request_data['vnp_Version'] = app.config['VNP_VERSION']
+    vnp.request_data['vnp_Command'] = app.config['VNP_COMMAND']
+    vnp.request_data['vnp_TmnCode'] = app.config['VNP_TMN_CODE']
+    vnp.request_data['vnp_Amount'] = int(price_pay.fee) * 100
+    vnp.request_data['vnp_CurrCode'] = app.config['VNP_CURRENCY_CODE']
+    vnp.request_data['vnp_TxnRef'] = str(student_id) + '-' + datetime.now().strftime('%Y%m%d%H%M%S')
+    vnp.request_data['vnp_Locale'] = 'vn'
+    vnp.request_data[
+        'vnp_OrderInfo'] = f'Thanh toán học phí cho học sinh ID {student_class.get_student_by_id(student_id).students.profile.name} Số tiền {price_pay.fee}'
+    vnp.request_data['vnp_CreateDate'] = datetime.now().strftime('%Y%m%d%H%M%S')
+    vnp.request_data['vnp_IpAddr'] = app.config['VNP_IP_ADDRESS']
+    vnp.request_data['vnp_OrderType'] = 'billpayment'
+    vnp.request_data['vnp_ReturnUrl'] = url_for('vnpay_return', _external=True)
+
+    vnpay_payment_url = vnp.get_payment_url(vnpay_payment_url=app.config['VNP_URL'],
+                                            secret_key=app.config['VNP_HASH_SECRET'])
+    return vnpay_payment_url

@@ -6,10 +6,10 @@
         <h1 class="text-center text-danger mt-1">FLIGHT MANAGEMENT STATISTICS</h1>
 
         <h2 class="mt-4">BÁO CÁO TỔNG KẾT MÔN HỌC</h2>
-        <form action="">
+        <form method="post">
             <div class="form-group">
                 <label for="grade">Khối:</label>
-                <select id="grade" onchange="load_info_by_grade()" class="form-control">
+                <select id="grade" onchange="load_info_by_grade()" class="form-control" name="grade">
                     <option value="">-- Chọn Khối --</option>
                     <option value="10">Khối 10</option>
                     <option value="11">Khối 11</option>
@@ -18,11 +18,11 @@
             </div>
             <div class="form-group">
                 <label for="subject">Môn:</label>
-                <select id="subject" class="form-control"> </select>
+                <select id="subject" class="form-control" name="subject"> </select>
             </div>
             <div class="form-group">
                 <label for="semester_name">Học kỳ:</label>
-                <select id="semester_name" class="form-control"> </select>
+                <select id="semester_name" class="form-control" name="semester"> </select>
             </div>
             <div class="form-group">
                 <label for="semester_year">Năm học:</label>
@@ -31,35 +31,7 @@
             <button type="submit" class="btn btn-outline-primary">Thống kê</button>
         </form>
     </div>
-    <div class="col-md-5 col-12">
-        <canvas id="myChart"></canvas>
-    </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    window.onload = function () {
-        const ctx = document.getElementById('myChart');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-                datasets: [{
-                    label: '# of Votes',
-                    data: [12, 19, 3, 5, 2, 3],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-    }
-
-</script>
 <script>
     function load_info_by_grade() {
         const grade = document.getElementById('grade');
@@ -97,5 +69,9 @@
             })
         });
     }
+
+<!--    function stats_info(button) {-->
+<!--            window.location.href = `/admin/statinfoview/?subject=${button.id}&semester=${document.getElementById("semester").value}`-->
+<!--        }-->
 </script>
 {% endblock %}

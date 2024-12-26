@@ -1,12 +1,13 @@
 import pdb
 
 import pandas
+from cloudinary.provisioning import create_user
 from flask import render_template, url_for, redirect
 import random
 
 from wtforms.validators import length
 
-from App import app, login, ALLOW_EXTENSIONS, utils
+from App import app, login, ALLOW_EXTENSIONS, utils, vnpay
 from App.admin import *
 from flask_login import login_user, logout_user, current_user, login_required
 
@@ -15,13 +16,11 @@ from App.decorators import role_only
 
 from App import form
 from App.dao.assignment import handle_action
-from App.dao import auth, student, teacher_subject, exam, semester, teacher_list, regulation, assignment
+from App.dao import auth, student, teacher_subject, exam, semester, teacher_list, regulation, assignment,tuition_fee
 
 from App.api.student_class import *
 from App.api.teacher_assignment import *
 from App.api.teacher_score import *
-
-
 
 
 # user login
@@ -61,7 +60,7 @@ def login_admin_process():
     if request.method == "POST":
         username = request.form.get('username')
         password = request.form.get('password')
-        user_login = auth.auth_user(username=username, password=password,role=UserRole.ADMIN)
+        user_login = auth.auth_user(username=username, password=password, role=UserRole.ADMIN)
         # pdb.set_trace()
         if user_login:
             login_user(user_login)
@@ -137,6 +136,43 @@ def upload_by_excel():
 
         return redirect(url_for('manage_student'))
     return "Thêm dữ liệu không thành công"
+
+
+@app.route('/staff/payment', methods=['GET', 'POST'])
+def payment():
+    if request.method == 'POST':
+        student_id = request.form.get('student_id')
+        vnpay_payment_url = utils.pay_with_vnpay(student_id=student_id)
+
+        return redirect(vnpay_payment_url)
+    return render_template('staff/payment.html', user_page=app.config['USER_STAFF'])
+
+
+@app.route('/staff/vnpay_return')
+def vnpay_return():
+    msc = ''
+    transaction_id = request.args.get('vnp_TransactionNo')
+    vnp_TxnRef = request.args.get('vnp_TxnRef')
+    price = request.args.get('vnp_Amount')
+    vnp_ResponseCode = request.args.get('vnp_ResponseCode')
+    vnp_BankCode = request.args.get('vnp_BankCode')
+    student_id = int(vnp_TxnRef.split('-')[0])
+
+    v = tuition_fee.add_vnPay_history(transaction_id=transaction_id,
+                                      price_pay=price,
+                                      create_day=request.args.get('vnp_PayDate'),
+                                      description=request.args.get('vnp_OrderInfo'))
+    tuition_fee.add_receipt(student_id=student_id,staff_id=current_user.id,transaction_id=v.id,create_day=request.args.get('vnp_PayDate'))
+    if vnp_ResponseCode == '00':
+        msc = 'THANH TOÁN THÀNH CÔNG'
+
+    return render_template('staff/vnpay_return.html',
+                           user_page=app.config['USER_STAFF'],
+                           transaction_id=transaction_id,
+                           vnp_TxnRef = vnp_TxnRef,
+                           price=int(price),
+                           msc = msc,
+                           vnp_BankCode = vnp_BankCode)
 
 
 def add_student(form_add_student, staff_id):
@@ -251,7 +287,7 @@ def teacher_subject_assignment(grade_value, class_id):
 
 
 # teacher
-@app.route('/teacher/teacher_score',methods=['GET','POST'])
+@app.route('/teacher/teacher_score', methods=['GET', 'POST'])
 @role_only([UserRole.TEACHER])
 def teacher_score():
     teach_classes = teacher_list.get_class_by_teacher_id(current_user.id)
@@ -260,18 +296,18 @@ def teacher_score():
         semester_id = request.form.get('semester_id')
         subject_id = request.form.get('subject_id')
         teach_plan = teacher_list.get_plan(class_id=class_id,
-                                     semester_id=semester_id,
-                                     subject_id=subject_id,
-                                     teacher_id=current_user.id)
+                                           semester_id=semester_id,
+                                           subject_id=subject_id,
+                                           teacher_id=current_user.id)
 
-        return redirect(url_for('view_score',teacher_plan_id=teach_plan.id))
+        return redirect(url_for('view_score', teacher_plan_id=teach_plan.id))
 
     return render_template('teacher/teacher_score.html',
                            user_page='teacher',
                            teach_classes=teach_classes)
 
 
-@app.route('/teacher/teacher_input_score/<int:teacher_plan_id>',methods=['GET','POST'])
+@app.route('/teacher/teacher_input_score/<int:teacher_plan_id>', methods=['GET', 'POST'])
 def input_score(teacher_plan_id):
     teach_plan = teacher_list.get_teaching_plan_by_id(teacher_plan_id=teacher_plan_id)
     return render_template('teacher/teacher_input_score.html',
@@ -283,7 +319,7 @@ def input_score(teacher_plan_id):
 @app.route('/teacher/view_score/<int:teacher_plan_id>')
 def view_score(teacher_plan_id):
     teach_plan = teacher_list.get_teaching_plan_by_id(teacher_plan_id=teacher_plan_id)
-    return render_template('teacher/view_score.html',user_page='teacher',
+    return render_template('teacher/view_score.html', user_page='teacher',
                            teach_plan=teach_plan,
                            get_score=exam.get_score_student)
 
@@ -312,7 +348,5 @@ def view_average_score(teacher_plan_id):
     )
 
 
-
-
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5001, debug=True)

@@ -52,8 +52,8 @@ Trang chủ
                 {% endfor %}
             </td>
             <td>
-                <input type="number" name="" id="3" class="FINAL_EXAM_{{loop.index}}"
-                       value="{{get_score(teach_plan.id,st.id,'FINAL_EXAM',loop.index).value}}"
+                <input type="number" name="" id="3" class="FINAL_EXAM_1"
+                       value="{{get_score(teach_plan.id,st.id,'FINAL_EXAM',1).value}}"
                        data-id="{{st.id}}"
                        min="0" max="10"
                        style="width: 60px; padding: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;"/>

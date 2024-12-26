@@ -9,7 +9,7 @@ from App.model import  Grade
 def get_info_by_grade():
     grade_name = request.json.get('grade_value')
     subjects = teacher_subject.get_subjects_by_grade(Grade(int(grade_name)))
-    semester_ = semester.get_all_semester()
+    semester_ = semester.get_semester()
     subjects_json = [
         {
             'subject_id':s.id,

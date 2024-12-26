@@ -16,6 +16,7 @@ from App.dao.stats import get_subjects, get_semesters, get_years, get_grades, ge
     get_report_data  # Nhập các hàm DAO
 from App.api.admin import *
 from App import form
+from App.dao import classes
 
 
 class MyAdminView(AdminIndexView):
@@ -172,36 +173,6 @@ class ManageSubjectView(AdminView):
         super().on_model_change(form, model, is_created)
 
 
-class StatsView(AuthenticatedView):
-    @expose('/')
-    def index(self):
-        semesters = get_semesters()  # Danh sách học kỳ
-        years = get_years()  # Danh sách năm học
-        subjects = db.session.query(Subject).all()
-
-        # Lọc trùng lặp dựa trên tên môn học
-        unique_subjects = []
-        seen_subject_names = set()
-        for subject in subjects:
-            if subject.name not in seen_subject_names:
-                unique_subjects.append(subject)
-                seen_subject_names.add(subject.name)
-        return self.render('admin/stats.html', subjects=unique_subjects, semesters=semesters, years=years)
-
-    @expose('/report_data')
-    def report_data(self):
-        grade = request.args.get('grade')
-        subject_id = request.args.get('subject')
-        semester_id = request.args.get('semester')
-        year = request.args.get('year')
-
-        # Get the report data from DAO
-        report_data = get_report_data(grade, subject_id, semester_id, year)
-
-        # Return the data as JSON
-        return jsonify(report_data)
-
-
 class RulesView(AdminView):
     column_list = ['id', 'type', 'regulation_name', 'min', 'max']
     form_columns = ['type', 'regulation_name', 'min', 'max']
@@ -312,10 +283,63 @@ class ManageTeacherAndStaffView(AdminView):
         super().on_model_change(form, model, is_created)
 
 
+class StatsView(AuthenticatedView):
+    @expose('/',methods=['GET', 'POST'])
+    def index(self):
+        if request.method == 'POST':
+            grade = request.form.get('grade')
+            subject = request.form.get('subject')
+            semester_ = request.form.get('semester')
+            if grade and subject and semester:
+                return redirect(url_for('statsinfoview.index',grade=grade,subject=subject,semester=semester_))
+
+        semesters = get_semesters()  # Danh sách học kỳ
+        years = get_years()  # Danh sách năm học
+        subjects = db.session.query(Subject).all()
+
+        # Lọc trùng lặp dựa trên tên môn học
+        unique_subjects = []
+        seen_subject_names = set()
+        for subject in subjects:
+            if subject.name not in seen_subject_names:
+                unique_subjects.append(subject)
+                seen_subject_names.add(subject.name)
+        return self.render('admin/stats.html', subjects=unique_subjects, semesters=semesters, years=years)
+
+
+class StatsInfoView(AuthenticatedView):
+    @expose('/')
+    def index(self):
+        grade_value = request.args.get('grade')
+        semester_id = request.args.get('semester')
+        subject_id = request.args.get('subject')
+
+        res = teacher_subject.get_avg_score_of_subject(semester_id = int(semester_id),subject_id=int(subject_id))
+        list_class_id = [t[0] for t in res]
+        list_dtb = [t[1] for t in res]
+        res_final = teacher_subject.student_classification(semester_id = int(semester_id),subject_id=int(subject_id))
+
+        res_classification_in_subject = teacher_subject.get_classification_in_subject(semester_id = int(semester_id),subject_id=int(subject_id))
+        classification_in_subject = [int(item) if item is not None else 0 for item in res_classification_in_subject[0]]
+
+        return self.render('admin/stats_info.html',
+                           subject = teacher_subject.get_subject_by_id(subject_id),
+                           semester=semester.get_semester(semester_id=semester_id),
+                           res_final = res_final,
+                           def_get_class=classes.get_class_by_id,
+                           list_class_id = list_class_id,
+                           list_dtb = list_dtb,
+                           classification_in_subject=classification_in_subject)
+
+    def is_visible(self):
+        return False
+
+
 admin = Admin(app=app, name='Admin', template_mode='bootstrap4', index_view=MyAdminView())
 admin.add_view(ManageClassView(Class, db.session, name="Quản Lý Lớp Học"))
 admin.add_view(ManageSubjectView(Subject, db.session, name="Quản lý môn học"))
 admin.add_view(RulesView(Regulation, db.session, name="Quy định"))
 admin.add_view(ManageTeacherAndStaffView(User, db.session, name="Quản lý Nhân sự"))
 admin.add_view(StatsView(name="Thống kê điểm"))
+admin.add_view(StatsInfoView(name="Thống kê chi tiết"))
 admin.add_view(LogoutView(name='Đăng Xuất'))

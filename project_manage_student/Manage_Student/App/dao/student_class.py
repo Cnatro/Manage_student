@@ -38,7 +38,7 @@ def get_list_student(class_id=None, value_name=None):
     query = StudentClass.query
     if class_id and value_name:
         return (query.join(Profile, Profile.id == StudentClass.student_id)
-                .filter(Profile.name.contains(value_name),StudentClass.class_id.__eq__(class_id)).all())
+                .filter(Profile.name.contains(value_name), StudentClass.class_id.__eq__(class_id)).all())
     if class_id:
         return query.filter(StudentClass.class_id.__eq__(class_id)).all()
     if value_name:
@@ -112,3 +112,7 @@ def add_student_class(student_ids, class_id):
         db.session.add(st)
     db.session.commit()
     classes.count_student_of_class()
+
+
+def get_student_by_id(student_id):
+    return StudentClass.query.filter(StudentClass.student_id.__eq__(student_id)).first()

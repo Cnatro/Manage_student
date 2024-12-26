@@ -53,14 +53,15 @@ function saveScore(teacher_plan_id){
     const input_score = document.querySelectorAll('input[type="number"]');
 
     for( ip of input_score ){
-        score.push({
-            'student_id':ip.dataset.id,
-            'type_exam':ip.className.slice(0,-2),
-            'value':ip.value,
-            'count_exam':ip.className.slice(-1)
-        });
+        if(ip.value != '' && ip.disabled === false){
+                score.push({
+                'student_id':ip.dataset.id,
+                'type_exam':ip.className.slice(0,-2),
+                'value':ip.value,
+                'count_exam':ip.className.slice(-1)
+            });
+        }
     }
-
     fetch(`/api/teacher_score/${teacher_plan_id}/score`,{
         method:'post',
         body:JSON.stringify({
@@ -94,7 +95,7 @@ function confirm_edit(student_id,teacher_plan_id){
     const input_score = document.querySelectorAll(`input[data-id="${student_id}"]`);
     score=[];
     for( ip of input_score ){
-        if(ip.value != ''){
+        if(ip.value != '' && ip.disabled === false){
             score.push({
                 'student_id':ip.dataset.id,
                 'type_exam':ip.className.slice(0,-2),

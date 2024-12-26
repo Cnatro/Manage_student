@@ -1,6 +1,8 @@
 from App.model import Semester
 
-def get_all_semester():
+def get_semester(semester_id = None):
+    if semester_id:
+        return Semester.query.filter(Semester.id.__eq__(semester_id)).first()
     return Semester.query.order_by(Semester.id.desc()).all()
 
 
